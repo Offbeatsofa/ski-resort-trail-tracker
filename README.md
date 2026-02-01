@@ -6,7 +6,7 @@ A program in which you can keep track of trails at different ski resorts. The pr
 
 It will be used by anyone who wants to record and/or look at ski runs at different resorts. People can use it to plan their day out, with random run generations to keep it fresh and interesting. Of course, online and physical maps do exist, but the benefit of this program is a) that it has run specific details and conditions, and b) that you can record your own notes for each run. I personally love to snowboard, and I would enjoy a trail recording tool so that I could record which trails were my favorites and which ones to avoid.
 
-## *Resorts*:
+*Resorts*:
  - Name
  - List of trails
  - List of lifts
@@ -16,7 +16,7 @@ It will be used by anyone who wants to record and/or look at ski runs at differe
  - Map image
  - etc.
 
-## *Trails*:
+*Trails*:
  - Name
  - Difficulty
  - Mountain location (could be general region or more specific)
@@ -28,3 +28,12 @@ It will be used by anyone who wants to record and/or look at ski runs at differe
  - Trails that branch off of it
  - etc.
  
+ ## User Stories
+
+**As a user, I want to be able to :**
+ -  Add a trail to a resort.
+ -  Look at a list of trails in a given resort.
+ -  Add notes to a trail. 
+ -  Mark trails as open/closed and ridden/unridden.
+
+
