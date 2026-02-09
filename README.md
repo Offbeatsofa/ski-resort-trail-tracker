@@ -34,6 +34,7 @@ It will be used by anyone who wants to record and/or look at ski runs at differe
  -  Add a trail to a resort.
  -  Look at a list of trails in a given resort.
  -  Add notes to a trail. 
+ -  Edit notes that have been added.
  -  Mark trails as open/closed and ridden/unridden.
 
 
