@@ -1,6 +1,10 @@
 package model;
 
 import org.junit.jupiter.api.*;
+
+import model.Exceptions.DuplicateTrailException;
+import model.Exceptions.TrailLoopException;
+
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.ArrayList;
@@ -15,20 +19,22 @@ public class TrailTest {
     @BeforeEach
     public void runBefore() {
         testTrail = new Trail("test", "Black", "Peak", "Cliffs");
+        testTrail2 = new Trail("test2", "Green", "Base", "Groomed");
+        trailList = new ArrayList<>();
         testNotes = new ArrayList<String>();
     }
 
     @Test
     public void testConstructor() {
         assertEquals("test", testTrail.getName());
-        assertEquals("Green", testTrail.getDifficulty());
+        assertEquals("Black", testTrail.getDifficulty());
         assertEquals("Peak", testTrail.getLocation());
-        assertEquals("Moguls", testTrail.getCharacteristics());
+        assertEquals("Cliffs", testTrail.getFeatures());
         assertFalse(testTrail.isRidden());
         assertFalse(testTrail.isOpen());
         assertFalse(testTrail.isFavorite());
         assertTrue(testTrail.getNotes().isEmpty());
-        assertTrue(testTrail.getBranchingTrails().isEmpty());
+        assertTrue(testTrail.getDownhillTrails().isEmpty());
     }
 
     @Test
@@ -81,9 +87,9 @@ public class TrailTest {
     public void testFindNoteEmpty() {
         try {
             testTrail.findNote(0);
-            assertFalse(true);
-        } catch (Exception e) {  // TODO specify exception, look at testing abstractions
-            assertTrue(true);
+            fail();
+        } catch (IndexOutOfBoundsException e) {
+
         }
     }
 
@@ -91,9 +97,9 @@ public class TrailTest {
     public void testFindNoteOOB() {
         try {
             testTrail.findNote(100);
-            assertFalse(true);
+            fail();
         } catch (Exception e) {
-            assertTrue(true);
+
         }
     }
 
@@ -114,9 +120,9 @@ public class TrailTest {
     public void testEditNoteEmpty() {
         try {
             testTrail.editNote(0, ":( no notes");
-            assertFalse(true);
+            fail();
         } catch (Exception e) {
-            assertTrue(true);
+
         }        
     }
 
@@ -125,9 +131,9 @@ public class TrailTest {
         testTrail.addNote("index 0");
         try {
             testTrail.editNote(5, ":( not enough notes");
-            assertFalse(true);
-        } catch (Exception e) {
-            assertTrue(true);
+            fail();
+        } catch (Exception e) { 
+
         }     
     }
 
@@ -148,11 +154,47 @@ public class TrailTest {
     }
 
     @Test
-    public void testAddBranchingTrail() {
-        testTrail2 = new Trail("test2", "Green", "Base", "Groomed");
-        trailList = new ArrayList<Trail>();
+    public void testAddDownhillTrailSucceed() {     
         trailList.add(testTrail2);
-        testTrail.addBranchingTrail(testTrail2);
-        assertEquals(trailList, testTrail.getBranchingTrails());
+        try {
+            testTrail.addDownhillTrail(testTrail2);
+        } catch (Exception e) {
+            fail();
+        }
+        assertEquals(trailList, testTrail.getDownhillTrails());
+    }
+
+    @Test
+    public void testAddDownhillTrailLoop() {
+        try{
+            testTrail2.addDownhillTrail(testTrail);
+        } catch (Exception e) { 
+            fail();
+        }
+        try {
+            testTrail.addDownhillTrail(testTrail2);
+            fail();
+        } catch (TrailLoopException e) {
+
+        } catch (DuplicateTrailException e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testAddDownhillTrailContains() {
+        try{
+            testTrail.addDownhillTrail(testTrail2);
+        } catch (Exception e) { 
+            fail();
+        }
+        try {
+            testTrail.addDownhillTrail(testTrail2);
+            fail();
+        } catch (TrailLoopException e) {
+            fail();
+        } catch (DuplicateTrailException e) {
+
+        }
     }
 }

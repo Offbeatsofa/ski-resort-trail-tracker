@@ -1,96 +1,127 @@
 package model;
 
 import java.util.List;
-// import java.util.ArrayList;
+
+import model.Exceptions.DuplicateTrailException;
+import model.Exceptions.TrailLoopException;
+
+import java.util.ArrayList;
 
 // Represent a skiing trail, with name, difficulty, mountain area, 
 // notes, ridden status, favorite status, and branching trails
 public class Trail {
+
+    private String name;
+    private String difficulty;
+    private String location;
+    private String features; 
+    private List<String> notes;
+    private boolean ridden;
+    private boolean open;
+    private boolean favorite;
+    private List<Trail> downhillTrails;
     
     /* EFFECTS: creates a new trail, with given name, difficulty, location, 
      * and characteristics, and with no notes, unridden, closed, and 
      * unfavorited status, and no branching trails. */
-    public Trail(String name, String difficulty, String location, String characteristics) {
-        //stub
+    public Trail(String name, String difficulty, String location, String features) {
+        this.name = name;
+        this.difficulty = difficulty;
+        this.location = location;
+        this.features = features;
+        this.notes = new ArrayList<String>();
+        this.ridden = false;
+        this.open = false;
+        this.favorite = false;
+        this.downhillTrails = new ArrayList<Trail>();
     }
 
     public String getName() {
-        return null;
+        return name;
     }
 
     public String getDifficulty() {
-        return null;
+        return difficulty;
     }
 
     public String getLocation() {
-        return null;
+        return location;
     }
 
-    public String getCharacteristics() {
-        return null;
+    public String getFeatures() {
+        return features;
     }
 
     public boolean isRidden() {
-        return false;
+        return ridden;
     }
 
     public boolean isOpen() {
-        return false; 
+        return open; 
     }
 
     public boolean isFavorite() {
-        return false;
+        return favorite;
     }
 
     public List<String> getNotes() {
-        return null;
+        return notes;
     }
 
-    public List<Trail> getBranchingTrails() {
-        return null;
+    public List<Trail> getDownhillTrails() {
+        return downhillTrails;
     }
 
     // MODIFIES: this
     // EFFECTS: changes favorite status and returns new status
     public boolean favorite() {
-        return false;
+        favorite = !favorite;
+        return favorite;
     }
 
     // MODIFIES: this
     // EFFECTS: changes ridden status and returns new status
     public boolean ride() {
-        return false;
+        ridden = !ridden;
+        return ridden;
     }
 
     // MODIFIES: this
     // EFFECTS: changes open status and returns new status
     public boolean open() {
-        return false;
+        open = !open;
+        return open;
     }
 
     // MODIFIES: this
     // EFFECTS: adds the given string as a new note
     public void addNote(String note) {
-        // stub
+        notes.add(note);
     }
 
     // REQUIRES: given index is within the range of notes, and notes are not empty
     // EFFECTS: returns the note at the given index
-    public String findNote(int index) {
-        return null;
+    public String findNote(int index) throws IndexOutOfBoundsException {
+        return notes.get(index);
     }
 
     // REQUIRES: given index is within the range of notes, and notes are not empty
     // MODIFIES: this
     // EFFECTS: changes the note at the given index to the given string
-    public void editNote(int index, String newNote) {
-        // stub
+    public void editNote(int index, String newNote) throws IndexOutOfBoundsException {
+        notes.set(index, newNote);
     }
 
-    // REQUIRES: trail is not already in list, added trail doesn't loop back to a previous one
+    // REQUIRES: trail is not already in list, added trail doesn't loop back to this one
     // MODIFIES: this
     // EFFECTS: adds trail to list of trails
-    public void addBranchingTrail(Trail t) {
-        // stub
+    public void addDownhillTrail(Trail t) throws DuplicateTrailException, TrailLoopException {
+        if (!downhillTrails.contains(t) && !t.getDownhillTrails().contains(this)) {
+            downhillTrails.add(t);
+        } else if (t.getDownhillTrails().contains(this)) {
+            throw new TrailLoopException();
+        } else {
+            throw new DuplicateTrailException();
+        } // TODO double check implementation is complete, commit
     }
 }

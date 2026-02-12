@@ -20,7 +20,7 @@ It will be used by anyone who wants to record and/or look at ski runs at differe
  - Name
  - Difficulty
  - Mountain location (could be general region or more specific)
- - Characteristics (Cliffs, trees, moguls etc.)
+ - Features (Cliffs, trees, moguls etc.)
  - Notes
  - Unridden/ridden
  - Open/Closed
