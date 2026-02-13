@@ -2,8 +2,8 @@ package model;
 
 import org.junit.jupiter.api.*;
 
-import model.Exceptions.DuplicateTrailException;
-import model.Exceptions.TrailLoopException;
+import model.exceptions.DuplicateTrailException;
+import model.exceptions.TrailLoopException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;

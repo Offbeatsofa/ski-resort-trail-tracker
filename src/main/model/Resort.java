@@ -8,12 +8,12 @@ public class Resort {
 
     // EFFECTS: creates a new instance of the resort class, with name set to
     // resortName, region set to region, and no trails, lifts, restaurants, or areas
-    public Resort() {
+    public Resort(String name, String region) {
         // stub
     }
 
     public String getName() {
-        return ""; // stub
+        return null; // stub
     }
 
     public void setName() {
@@ -21,31 +21,33 @@ public class Resort {
     }
 
     public String getRegion() {
-        return ""; // stub
+        return null; // stub
     }
 
-    public void setRegion() {
+    public void setRegion(String newRegion) {
         // stub
     }
 
     public List<Trail> getTrails() {
-        return new ArrayList<Trail>(); // stub
+        return null; // stub
     }
 
-    public List<Trail> getTrails(String filter) {
-        return new ArrayList<Trail>(); //stub
+    //REQUIRES: filterType is one of "difficulty", "location", or "features"
+    //EFFECTS: returns trails that have the same <filterType> as filterValue, or null if none
+    public List<Trail> getTrails(String filterType, String filterValue) {
+        return null; //stub
     }
 
     public List<ResortItem> getLifts() {
-        return new ArrayList<ResortItem>(); // stub
+        return null; // stub
     }
 
     public List<ResortItem> getApres() { // restaurants and shops
-        return new ArrayList<ResortItem>(); // stub
+        return null; // stub
     }
 
     public List<ResortItem> getAreas() {
-        return new ArrayList<ResortItem>(); // stub
+        return null; // stub
     }
 
     
@@ -65,8 +67,13 @@ public class Resort {
 
     /* REQUIRES: t is in resort
      * EFFECTS: generates a list starting from one run that leads 
-     * into a random trailing run until you get to the bottom */
+     * into a random trailing run until the run has no downhill runs */
     public List<Trail> generateRun(Trail t) {
-        return new ArrayList<Trail>(); //stub
+        return null; //stub
+    }
+
+    // EFFECTS: returns seed for testing purposes
+    public long getSeed() { 
+        return 0;
     }
 }

@@ -2,8 +2,8 @@ package model;
 
 import java.util.List;
 
-import model.Exceptions.DuplicateTrailException;
-import model.Exceptions.TrailLoopException;
+import model.exceptions.DuplicateTrailException;
+import model.exceptions.TrailLoopException;
 
 import java.util.ArrayList;
 
@@ -122,6 +122,6 @@ public class Trail {
             throw new TrailLoopException();
         } else {
             throw new DuplicateTrailException();
-        } // TODO double check implementation is complete, commit
+        }
     }
 }
