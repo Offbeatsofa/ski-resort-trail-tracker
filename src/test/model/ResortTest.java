@@ -3,7 +3,6 @@ package model;
 import org.junit.jupiter.api.*;
 
 import model.exceptions.BadFilterException;
-import model.resortitems.ResortItem;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
@@ -18,7 +17,6 @@ public class ResortTest {
     Trail downhillTrail1;
     Trail downhillTrail2;
     List<Trail> testList;
-    ResortItem item;
     Random rnd;
 
     @BeforeEach
@@ -111,17 +109,6 @@ public class ResortTest {
         assertEquals(testList, testResort.getTrails());
     }
 
-    /*
-    @Test
-    public void testAddItem() {
-        fail();
-    }
-
-    @Test
-    public void testAddItemContains() {
-        fail();
-    }
-    */
 
     @Test
     public void testGenerateRunEmpty() { 
