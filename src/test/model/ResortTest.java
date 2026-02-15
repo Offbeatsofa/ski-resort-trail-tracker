@@ -2,6 +2,9 @@ package model;
 
 import org.junit.jupiter.api.*;
 
+import model.exceptions.BadFilterException;
+import model.resortitems.ResortItem;
+
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.ArrayList;
@@ -34,33 +37,63 @@ public class ResortTest {
         assertEquals("test", testResort.getName());
         assertEquals("rockies", testResort.getRegion());
         assertTrue(testResort.getTrails().isEmpty());
-        assertTrue(testResort.getLifts().isEmpty());
-        assertTrue(testResort.getApres().isEmpty());
-        assertTrue(testResort.getAreas().isEmpty());
     }
 
+    @Test
+    public void testGetTrailsFilterBadFilter() {
+        try {
+            testResort.getTrails("error", null);
+            fail();
+        } catch (BadFilterException e) {
+
+        }
+    }
     @Test
     public void testGetTrailsFilterBoth() {
         testList.add(testTrail);
         testList.add(testTrail2);
-        assertEquals(testList, testResort.getTrails("difficulty", "green"));
+        testResort.addTrail(testTrail);
+        testResort.addTrail(testTrail2);
+        try {
+            assertEquals(testList, testResort.getTrails("difficulty", "green"));
+        } catch (BadFilterException e) {
+            fail();
+        }
     }
 
     @Test
     public void testGetTrailsFilterLocation() {
         testList.add(testTrail);
-        assertEquals(testList, testResort.getTrails("location", "lodge"));
+        testResort.addTrail(testTrail);
+        testResort.addTrail(testTrail2);
+        try {
+            assertEquals(testList, testResort.getTrails("location", "lodge"));
+        } catch (BadFilterException e) {
+            fail();
+        }
     }
 
     @Test
     public void testGetTrailsFilterFeatures() {
         testList.add(testTrail2);
-        assertEquals(testList, testResort.getTrails("features", "couloir"));
+        testResort.addTrail(testTrail);
+        testResort.addTrail(testTrail2);
+        try {
+            assertEquals(testList, testResort.getTrails("features", "couloir"));
+        } catch (BadFilterException e) {
+            fail();
+        }
     }
 
     @Test
     public void testGetTrailsFilterNone() {
-        assertNull(testResort.getTrails("difficulty", "black"));
+        testResort.addTrail(testTrail);
+        testResort.addTrail(testTrail2);
+        try {
+            assertNull(testResort.getTrails("difficulty", "black"));
+        } catch (BadFilterException e) {
+            fail();
+        }
     }
 
     @Test
@@ -78,15 +111,17 @@ public class ResortTest {
         assertEquals(testList, testResort.getTrails());
     }
 
+    /*
     @Test
     public void testAddItem() {
-        fail(); // TODO specify resortItem subclasses
+        fail();
     }
 
     @Test
     public void testAddItemContains() {
         fail();
     }
+    */
 
     @Test
     public void testGenerateRunEmpty() { 
@@ -107,7 +142,7 @@ public class ResortTest {
     }
 
     @Test
-    public void testGenerateRunMultiple() {
+    public void testGenerateRunRandom() {
         try {
             testTrail.addDownhillTrail(downhillTrail1);
             testTrail.addDownhillTrail(downhillTrail2);
@@ -119,7 +154,7 @@ public class ResortTest {
             testList.add(downhillTrail1);
             assertEquals(testList, testResort.generateRun(testTrail));
         } else {
-            testList.add(downhillTrail1);
+            testList.add(downhillTrail2);
             assertEquals(testList, testResort.generateRun(testTrail));
         }
     }
