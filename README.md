@@ -36,5 +36,7 @@ It will be used by anyone who wants to record and/or look at ski runs at differe
  -  Add notes to a trail. 
  -  Edit notes that have been added.
  -  Mark trails as open/closed and ridden/unridden.
+ -  Have a main menu option to save all trail and resort data.
+ -  Have a main menu option to load a previously saved resort/trail configuration.
 
 
