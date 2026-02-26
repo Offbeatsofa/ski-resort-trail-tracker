@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
 
+import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
+
+@ExcludeFromJacocoGeneratedReport
 public class ResortTest {
 
     Resort testResort;

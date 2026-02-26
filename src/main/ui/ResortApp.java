@@ -5,6 +5,9 @@ import model.Trail;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
+
+@ExcludeFromJacocoGeneratedReport
 // Resort trail tracking application
 public class ResortApp {
 
