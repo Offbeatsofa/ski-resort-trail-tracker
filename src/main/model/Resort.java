@@ -64,11 +64,7 @@ public class Resort {
         } else {
             throw new BadFilterException();
         }
-        if (returnList.isEmpty()) {
-            return null;
-        } else {
-            return returnList;
-        }
+        return returnList.isEmpty() ? null : returnList;
     }
     
     /* REQUIRES: t is not already in resort

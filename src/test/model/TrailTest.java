@@ -92,7 +92,7 @@ public class TrailTest {
             testTrail.findNote(0);
             fail();
         } catch (IndexOutOfBoundsException e) {
-
+            // pass
         }
     }
 
@@ -102,7 +102,7 @@ public class TrailTest {
             testTrail.findNote(100);
             fail();
         } catch (Exception e) {
-
+            // pass
         }
     }
 
@@ -125,7 +125,7 @@ public class TrailTest {
             testTrail.editNote(0, ":( no notes");
             fail();
         } catch (Exception e) {
-
+            // pass
         }        
     }
 
@@ -136,7 +136,7 @@ public class TrailTest {
             testTrail.editNote(5, ":( not enough notes");
             fail();
         } catch (Exception e) { 
-
+            // pass
         }     
     }
 
@@ -169,7 +169,7 @@ public class TrailTest {
 
     @Test
     public void testAddDownhillTrailLoop() {
-        try{
+        try {
             testTrail2.addDownhillTrail(testTrail);
         } catch (Exception e) { 
             fail();
@@ -178,7 +178,7 @@ public class TrailTest {
             testTrail.addDownhillTrail(testTrail2);
             fail();
         } catch (TrailLoopException e) {
-
+            // pass
         } catch (DuplicateTrailException e) {
             fail();
         }
@@ -186,7 +186,7 @@ public class TrailTest {
 
     @Test
     public void testAddDownhillTrailContains() {
-        try{
+        try {
             testTrail.addDownhillTrail(testTrail2);
         } catch (Exception e) { 
             fail();
@@ -197,7 +197,7 @@ public class TrailTest {
         } catch (TrailLoopException e) {
             fail();
         } catch (DuplicateTrailException e) {
-
+            // pass
         }
     }
 }

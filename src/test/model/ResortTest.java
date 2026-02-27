@@ -27,8 +27,8 @@ public class ResortTest {
         testResort = new Resort("test", "rockies");
         testTrail = new Trail("test1", "green", "lodge", "sidehits");
         testTrail2 = new Trail("test2", "green", "peak", "couloir");
-        downhillTrail1 = new Trail ("", "", "", "");
-        downhillTrail2 = new Trail ("", "", "", "");
+        downhillTrail1 = new Trail("", "", "", "");
+        downhillTrail2 = new Trail("", "", "", "");
         testList = new ArrayList<>();
         rnd = new Random(testResort.getSeed());
     }
@@ -46,9 +46,10 @@ public class ResortTest {
             testResort.getTrails("error", null);
             fail();
         } catch (BadFilterException e) {
-
+            // pass
         }
     }
+    
     @Test
     public void testGetTrailsFilterBoth() {
         testList.add(testTrail);

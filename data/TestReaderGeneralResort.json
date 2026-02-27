@@ -1,3 +1,29 @@
 {
-    
+    "name": "Resort",
+    "region": "Region",
+    "trails": [
+        {
+            "name": "name",
+            "difficulty": "difficulty",
+            "location": "location",
+            "features": "features",
+            "notes": ["note"],
+            "ridden": true,
+            "open": true,
+            "favorite": true,
+            "trails": []
+        },
+
+        {
+            "name": "name2",
+            "difficulty": "difficulty2",
+            "location": "location2",
+            "features": "features2",
+            "notes": [],
+            "ridden": false,
+            "open": false,
+            "favorite": false,
+            "trails": ["name"]
+        }
+    ]
 }

@@ -53,7 +53,7 @@ public class ResortApp {
         if (command.equals("a")) {
             doAddResort();
         } else if (command.equals("s")) {
-            if (!resorts.isEmpty()){
+            if (!resorts.isEmpty()) {
                 doSelectResort();
             } else {
                 System.out.println("No resorts to show!");
@@ -78,15 +78,16 @@ public class ResortApp {
     }
 
     private void processTrailCommand(String command) {
-        switch(command) {
+        Trail t = resorts.get(resortIndex).getTrails().get(trailIndex);
+        switch (command) {
             case "f" : 
-                System.out.println("Favorite set to " + String.valueOf(resorts.get(resortIndex).getTrails().get(trailIndex).favorite()));
+                System.out.println("Favorite set to " + String.valueOf(t.favorite()));
                 break;
             case "r" : 
-                System.out.println("Ridden set to " + String.valueOf(resorts.get(resortIndex).getTrails().get(trailIndex).ride()));
+                System.out.println("Ridden set to " + String.valueOf(t.ride()));
                 break;
             case "o" : 
-                System.out.println("Open set to " + String.valueOf(resorts.get(resortIndex).getTrails().get(trailIndex).open()));
+                System.out.println("Open set to " + String.valueOf(t.open()));
                 break;
             case "a" : 
                 doAddNote();
@@ -99,7 +100,6 @@ public class ResortApp {
                 break;
             default : 
                 System.out.println("Invalid option");
-                break;
         }
     }
 
@@ -240,7 +240,7 @@ public class ResortApp {
         System.out.println("Trail #: ");
         String index = input.next();
         for (int i = 0; i < resorts.get(resortIndex).getTrails().size(); i++) {
-            if (index.equals(String.valueOf(i+1))) {
+            if (index.equals(String.valueOf(i + 1))) {
                 try {
                     initTrail.addDownhillTrail(resorts.get(resortIndex).getTrails().get(i));
                     System.out.println("Trail add successful.");
@@ -268,7 +268,7 @@ public class ResortApp {
     }
 
     //EFFECTS: displays options: change favorite, change ridden, change open, add note, edit note, or add downhill trail
-    private void displayTrailMenu(){
+    private void displayTrailMenu() {
         System.out.println(resorts.get(resortIndex).getTrails().get(trailIndex).getName() + "\n");
         System.out.println("f - favorite/unfavorite trail");
         System.out.println("r - ride/unride trail");
