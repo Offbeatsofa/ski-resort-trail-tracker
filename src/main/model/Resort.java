@@ -91,12 +91,6 @@ public class Resort {
         }
     }
 
-    // REQUIRES: trail with such name exists in resort
-    // EFFECTS: finds a trail with a given name
-    public Trail findTrail(String name) {
-        return null; 
-    }
-
     // EFFECTS: returns seed for testing purposes
     public long getSeed() { 
         return rndSeed;

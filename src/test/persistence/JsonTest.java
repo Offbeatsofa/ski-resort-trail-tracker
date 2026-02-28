@@ -2,7 +2,7 @@ package persistence;
 
 import model.Trail;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 
 import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
@@ -11,14 +11,26 @@ import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
 public class JsonTest {
     protected void checkTrail(String name, String difficulty, String location, String features, List<String> notes,
             Boolean ridden, Boolean open, Boolean favorite, List<Trail> downhillTrails, Trail t) {
-        assertEquals(name, t.getName());
-        assertEquals(difficulty, t.getDifficulty());
-        assertEquals(location, t.getLocation());
-        assertEquals(features, t.getFeatures());
-        assertEquals(notes, t.getNotes());
-        assertEquals(ridden, t.isRidden());
-        assertEquals(open, t.isOpen());
-        assertEquals(favorite, t.isFavorite());
-        assertEquals(downhillTrails, t.getDownhillTrails());
+        Trail trail = new Trail(name, difficulty, location, features);
+        for (String note : notes) {
+            trail.addNote(note);
+        }
+        for (Trail d : downhillTrails) {
+            try {
+                trail.addDownhillTrail(d);
+            } catch (Exception e) {
+                fail("No exception expected");
+            }
+        }
+        if (ridden) {
+            trail.ride();
+        }
+        if (open)  {
+            trail.open(); 
+        }
+        if (favorite) {
+            trail.favorite();
+        }
+        assertEquals(trail, t);
     }   
 }

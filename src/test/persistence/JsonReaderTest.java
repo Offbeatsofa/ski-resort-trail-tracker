@@ -2,6 +2,7 @@ package persistence;
 
 import model.Resort;
 import model.Trail;
+import model.exceptions.NoSuchTrailException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +23,8 @@ public class JsonReaderTest extends JsonTest {
         try {
             reader.read();
             fail("IOException expected");
+        } catch (NoSuchTrailException e) {
+            fail("Wrong exception");
         } catch (IOException e) {
             // pass
         }
@@ -32,11 +35,13 @@ public class JsonReaderTest extends JsonTest {
         JsonReader reader = new JsonReader("./data/testReaderEmptyResort.json");
         try {
             Resort r = reader.read();
-            assertEquals("Empty resort", r.getName());
+            assertEquals("Empty Resort", r.getName());
             assertEquals("none", r.getRegion());
             assertTrue(r.getTrails().isEmpty());
         } catch (IOException e) {
             fail("Couldn't read from file");
+        } catch (NoSuchTrailException e) {
+            fail("Should not throw");
         }
     }
     
@@ -51,14 +56,17 @@ public class JsonReaderTest extends JsonTest {
             assertEquals("Resort", r.getName());
             assertEquals("Region", r.getRegion());
             List<Trail> trails = r.getTrails();
-            downhill.add(r.getTrails().get(1));
+            downhill.add(r.getTrails().get(0));
             assertEquals(2, trails.size());
             checkTrail("name", "difficulty", "location", "features", 
                     notes, true, true, true, new ArrayList<Trail>(), trails.get(0));
+            assertEquals(trails.get(0), trails.get(1).getDownhillTrails().get(0));
             checkTrail("name2", "difficulty2", "location2", "features2",
-                new ArrayList<>(), false, false, false, downhill, trails.get(1));
+                    new ArrayList<>(), false, false, false, downhill, trails.get(1));
         } catch (IOException e) {
             fail("Couldn't read from file");
+        } catch (NoSuchTrailException e) {
+            fail("Downhill trail exception");
         }
     }
 }

@@ -11,7 +11,7 @@
             "ridden": true,
             "open": true,
             "favorite": true,
-            "trails": []
+            "downhillTrails": []
         },
 
         {
@@ -23,7 +23,7 @@
             "ridden": false,
             "open": false,
             "favorite": false,
-            "trails": ["name"]
+            "downhillTrails": ["name"]
         }
     ]
 }

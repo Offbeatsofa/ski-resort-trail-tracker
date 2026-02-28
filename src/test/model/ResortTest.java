@@ -28,7 +28,7 @@ public class ResortTest {
         testTrail = new Trail("test1", "green", "lodge", "sidehits");
         testTrail2 = new Trail("test2", "green", "peak", "couloir");
         downhillTrail1 = new Trail("", "", "", "");
-        downhillTrail2 = new Trail("", "", "", "");
+        downhillTrail2 = new Trail("2", "2", "2", "2");
         testList = new ArrayList<>();
         rnd = new Random(testResort.getSeed());
     }

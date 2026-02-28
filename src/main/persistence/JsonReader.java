@@ -2,6 +2,7 @@ package persistence;
 
 import model.Resort;
 import model.Trail;
+import model.exceptions.NoSuchTrailException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +26,7 @@ public class JsonReader {
 
     // EFFECTS: reads resort from file and returns it;
     // throws IOException if an error occurs reading data from file
-    public Resort read() throws IOException {
+    public Resort read() throws IOException, NoSuchTrailException {
         String jsonData = readFile(source);
         JSONObject jsonObject = new JSONObject(jsonData);
         return parseResort(jsonObject);
@@ -43,58 +44,83 @@ public class JsonReader {
     }
 
     // EFFECTS: parses workroom from JSON object and returns it
-    private Resort parseResort(JSONObject jsonObject) {
-        String name = jsonObject.getString("name");
-        String region = jsonObject.getString("region");
+    private Resort parseResort(JSONObject jsonResort) throws NoSuchTrailException {
+        String name = jsonResort.getString("name");
+        String region = jsonResort.getString("region");
         Resort r = new Resort(name, region);
-        addTrails(r, jsonObject);
+        addTrails(r, jsonResort);
         return r;
     }
 
     // MODIFIES: r
     // EFFECTS: parses trails from JSON object and adds them to resort
-    private void addTrails(Resort r, JSONObject jsonObject) {
-        JSONArray jsonArray = jsonObject.getJSONArray("trails");
+    private void addTrails(Resort r, JSONObject jsonResort) throws NoSuchTrailException {
+        JSONArray jsonArray = jsonResort.getJSONArray("trails");
         for (Object json : jsonArray) {
             JSONObject nextTrail = (JSONObject) json;
-            addTrail(r, nextTrail);
+            r.addTrail(getTrail(nextTrail, jsonArray));
         }
     }
 
     // MODIFIES: r
-    // EFFECTS: parses trail from JSON object and adds it to resort
-    private void addTrail(Resort r, JSONObject jsonObject) {
-        String name = jsonObject.getString("name");
-        String difficulty = jsonObject.getString("difficulty");
-        String location = jsonObject.getString("location");
-        String features = jsonObject.getString("features");
-        List<String> notes = getNotes(jsonObject);
-        Boolean ridden = jsonObject.getBoolean("ridden");
-        Boolean open = jsonObject.getBoolean("open");
-        Boolean favorite = jsonObject.getBoolean("favorite");
-        List<Trail> downhillTrails = getTrails(r, jsonObject);
+    // EFFECTS: parses trail from JSON object and creates a trail object
+    // TODO ask TA if method length is suppressable
+    private Trail getTrail(JSONObject jsonTrail, JSONArray trailArray) throws NoSuchTrailException {
+        String name = jsonTrail.getString("name");
+        String difficulty = jsonTrail.getString("difficulty");
+        String location = jsonTrail.getString("location");
+        String features = jsonTrail.getString("features");
+        List<String> notes = getList(jsonTrail, "notes");
+        Boolean ridden = jsonTrail.getBoolean("ridden");
+        Boolean open = jsonTrail.getBoolean("open");
+        Boolean favorite = jsonTrail.getBoolean("favorite");
+        List<Trail> downhillTrails = getDownhillTrails(jsonTrail, trailArray);
         Trail trail = new Trail(name, difficulty, location, features);
-        
+        for (String note : notes) {
+            trail.addNote(note);
+        }
+        for (Trail t : downhillTrails) {
+            try {
+                trail.addDownhillTrail(t);
+            } catch (Exception e) { /* no trail added */ }
+        }
+        if (ridden) {
+            trail.ride();
+        }
+        if (open)  {
+            trail.open(); 
+        }
+        if (favorite) {
+            trail.favorite();
+        }
+        return trail;
     }
 
     // EFFECTS: parses jsonarray into list of string
-    private List<String> getNotes(JSONObject jsonObject) {
-        JSONArray notes = jsonObject.getJSONArray("notes");
+    private List<String> getList(JSONObject jsonObject, String key) {
+        JSONArray list = jsonObject.getJSONArray(key);
         List<String> returnList = new ArrayList<>();
-        for (Object note : notes) {
-            String nextNote = note.toString();
-            returnList.add(nextNote);
+        for (Object string : list) {
+            String nextItem = string.toString();
+            returnList.add(nextItem);
         }
         return returnList;
     }   
 
-    // EFFECTS: parses jsonarray into list of string
-    private List<Trail> getTrails(Resort r, JSONObject jsonObject) {
-        JSONArray trails = jsonObject.getJSONArray("trails");
+    // EFFECTS: returns list of downhill trails in trail object
+    private List<Trail> getDownhillTrails(JSONObject jsonTrail, JSONArray resortTrails) throws NoSuchTrailException {
         List<Trail> returnList = new ArrayList<>();
-        for (Object trail : trails) {
-            String trailName = trail.toString();
-            returnList.add(r.findTrail(trailName));
+        List<String> trailNames = getList(jsonTrail, "downhillTrails");
+        nameLoop:
+        for (String trailName : trailNames) {
+            for (Object item : resortTrails) {
+                JSONObject trail = (JSONObject) item;
+                if (trail.getString("name").equals(trailName)) {
+                    returnList.add(getTrail(trail, resortTrails));
+                    continue nameLoop;
+                }
+            }
+            throw new NoSuchTrailException();
         }
         return returnList;
     }   
