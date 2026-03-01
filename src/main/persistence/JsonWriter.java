@@ -1,7 +1,6 @@
 package persistence;
 
 import model.Resort;
-import model.Trail;
 import org.json.JSONObject;
 
 import java.io.*;

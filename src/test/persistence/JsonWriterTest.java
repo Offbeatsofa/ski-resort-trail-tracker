@@ -2,13 +2,17 @@ package persistence;
 
 import model.Resort;
 import model.Trail;
+
 import org.junit.jupiter.api.Test;
+
+import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // code adapted from JsonSerializationDemo
+@ExcludeFromJacocoGeneratedReport
 public class JsonWriterTest extends JsonTest {
     @Test
     void testWriterInvalidFile() {
@@ -49,11 +53,7 @@ public class JsonWriterTest extends JsonTest {
             name.open();
             name.favorite();
             Trail name2 = new Trail("name2", "difficulty2", "location2", "features2");
-            try {
-                name2.addDownhillTrail(name);
-            } catch (Exception e) {
-                fail("Downhill trail add failed");
-            }
+            name2.addDownhillTrail(name);
             r.addTrail(name);
             r.addTrail(name2);
             JsonWriter writer = new JsonWriter("./data/testWriterGeneralWorkroom.json");
@@ -61,9 +61,8 @@ public class JsonWriterTest extends JsonTest {
             writer.write(r);
             writer.close();
             JsonReader reader = new JsonReader("./data/testWriterGeneralWorkroom.json");
-            Resort result = reader.read();
-            assertEquals(r, result);
-        } catch (IOException e) {
+            assertEquals(r, reader.read());
+        } catch (Exception e) {
             fail("should not have thrown exception");
         }
     }

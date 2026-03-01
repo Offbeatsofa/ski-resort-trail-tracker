@@ -63,18 +63,11 @@ public class JsonReader {
 
     // MODIFIES: r
     // EFFECTS: parses trail from JSON object and creates a trail object
-    // TODO ask TA if method length is suppressable
     private Trail getTrail(JSONObject jsonTrail, JSONArray trailArray) {
-        String name = jsonTrail.getString("name");
-        String difficulty = jsonTrail.getString("difficulty");
-        String location = jsonTrail.getString("location");
-        String features = jsonTrail.getString("features");
         List<String> notes = getList(jsonTrail, "notes");
-        Boolean ridden = jsonTrail.getBoolean("ridden");
-        Boolean open = jsonTrail.getBoolean("open");
-        Boolean favorite = jsonTrail.getBoolean("favorite");
         List<Trail> downhillTrails = getDownhillTrails(jsonTrail, trailArray);
-        Trail trail = new Trail(name, difficulty, location, features);
+        Trail trail = new Trail(jsonTrail.getString("name"), jsonTrail.getString("difficulty"), 
+                jsonTrail.getString("location"), jsonTrail.getString("features"));
         for (String note : notes) {
             trail.addNote(note);
         }
@@ -83,13 +76,13 @@ public class JsonReader {
                 trail.addDownhillTrail(t);
             } catch (Exception e) { /* no trail added */ }
         }
-        if (ridden) {
+        if (jsonTrail.getBoolean("ridden")) {
             trail.ride();
         }
-        if (open)  {
+        if (jsonTrail.getBoolean("open"))  {
             trail.open(); 
         }
-        if (favorite) {
+        if (jsonTrail.getBoolean("favorite")) {
             trail.favorite();
         }
         return trail;

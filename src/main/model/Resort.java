@@ -129,6 +129,7 @@ public class Resort {
 
     @Override
     @ExcludeFromJacocoGeneratedReport
+    @SuppressWarnings("methodlength")
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;

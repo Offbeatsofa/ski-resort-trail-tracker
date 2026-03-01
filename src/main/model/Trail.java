@@ -180,6 +180,7 @@ public class Trail implements Writable {
 
     @Override
     @ExcludeFromJacocoGeneratedReport
+    @SuppressWarnings("methodlength")
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;

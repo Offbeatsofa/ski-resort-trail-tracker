@@ -2,6 +2,17 @@ package ui;
 
 import model.Resort;
 import model.Trail;
+import persistence.JsonReader;
+import persistence.JsonWriter;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -11,10 +22,11 @@ import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
 // Resort trail tracking application
 public class ResortApp {
 
-    private ArrayList<Resort> resorts;
+    private List<Resort> resorts;
     private Scanner input;
     private int resortIndex;
     private int trailIndex;
+    private static final String DATA_PATH = "./data/";
 
     //Code based on TellerApp lecture lab
 
@@ -53,13 +65,18 @@ public class ResortApp {
         if (command.equals("a")) {
             doAddResort();
         } else if (command.equals("s")) {
-            if (!resorts.isEmpty()) {
-                doSelectResort();
-            } else {
+            if (resorts.isEmpty()) {
                 System.out.println("No resorts to show!");
+            } else {
+                doSelectResort();
+                resortMenu();
             }
+        } else if (command.equals("f")) {
+            doSaveResort();
+        } else if (command.equals("l")) {
+            doLoadResort();
         } else {
-            System.out.println("Invalid option.");
+            System.out.println("Invalid main command.");
         }
     }
     
@@ -73,7 +90,7 @@ public class ResortApp {
                 System.out.println("No trails to show!");
             }
         } else {
-            System.out.println("Invalid option.");
+            System.out.println("Invalid resort command.");
         }    
     }
 
@@ -99,7 +116,7 @@ public class ResortApp {
                 doDownhillTrail();
                 break;
             default : 
-                System.out.println("Invalid option");
+                System.out.println("Invalid trail editing option.");
         }
     }
 
@@ -111,24 +128,23 @@ public class ResortApp {
         System.out.println("Region: \n");
         String region = input.nextLine();
         resorts.add(new Resort(name, region));
-        runApp();
     }
 
     //REQUIRES: resorts is not empty
     //EFFECTS: selects an added resort
     private void doSelectResort() {
         showResorts();
+        loopUntilCorrect:
         while (true) {
             System.out.println("Select resort: \n");
             String index = input.nextLine();
             for (int i = 0; i < resorts.size(); i++) {
                 if (index.equals(String.valueOf(i + 1))) {
                     resortIndex = i;
-                    resortMenu();
-                    break;
+                    break loopUntilCorrect;
                 }
             }
-            System.out.println("Invalid, try again.");
+            System.out.println("Invalid resort selection");
         }
     }
 
@@ -139,7 +155,7 @@ public class ResortApp {
             command = command.toLowerCase();
             if (command.equals("e")) {
                 //runApp();
-                return;
+                break;
             } else {
                 processResortCommand(command);
             }
@@ -164,28 +180,26 @@ public class ResortApp {
         System.out.println("Features: \n");
         String features = input.nextLine();
         r.addTrail(new Trail(name, difficulty, location, features));
-        displayResortMenu();
-        String command = input.nextLine();
-        command = command.toLowerCase();
-        processResortCommand(command);
     }
 
     //REQUIRES: resort's trails are not empty
     //EFFECTS: selects an added trail
     private void doSelectTrail(Resort r) {
         showTrails(r);
+        loopUntilCorrect:
         while (true) {
             System.out.println("Select trail: \n");
             String index = input.nextLine();
             for (int i = 0; i < r.getTrails().size(); i++) {
                 if (index.equals(String.valueOf(i + 1))) {
                     trailIndex = i;
-                    trailMenu();
-                    break;
+                    break loopUntilCorrect;
                 }
+                
             }
-            System.out.println("Invalid, try again.");
+            System.out.println("Invalid trail selection.");            
         }
+        trailMenu();
     }
     
     private void trailMenu() {
@@ -193,9 +207,8 @@ public class ResortApp {
             displayTrailMenu();
             System.out.println();
             String command = input.nextLine();
-            command = command.substring(0,1).toLowerCase();
+            command = command.toLowerCase();
             if (command.equals("e")) {
-                //resortMenu();
                 break;
             } else {
                 processTrailCommand(command);
@@ -230,9 +243,10 @@ public class ResortApp {
                 break;
             }
         }
-
     }
 
+    // MODIFIES: trail at current trailIndex
+    // EFFECTS: uses user input to add one trail to another
     private void doDownhillTrail() {
         Trail initTrail = resorts.get(resortIndex).getTrails().get(trailIndex);
         System.out.println("Which trail would you like to add?");
@@ -252,24 +266,83 @@ public class ResortApp {
         }
         System.out.println("Invalid trail number.");
     }
+
+    // EFFECTS: saves user selected resort to file
+    private void doSaveResort() {
+        System.out.println("Which resort would you like to save?");
+        doSelectResort();
+        Resort r = resorts.get(resortIndex);
+        String path = (DATA_PATH + r.getName().replaceAll("\\s+", "") + ".json");
+        JsonWriter writer = new JsonWriter(path);
+        try {
+            writer.open();
+            writer.write(r);
+            writer.close();
+            System.out.println("Saved " + r.getName() + " to " + path);
+        } catch (FileNotFoundException e) {
+            System.out.println("Unable to write to file " + path);
+        }
+    }
+
+    // EFFECTS: loads user selected resort from file
+    private void doLoadResort() {
+        try {
+            try (Stream<Path> entries = Files.list(Paths.get(DATA_PATH))) {
+                List<Path> pathList = entries.collect(Collectors.toList());
+                if (pathList.isEmpty()) {
+                    System.out.println("No resorts to load!");
+                } else {
+                    System.out.println("Which file would you like to load? \n");
+                    loopUntilCorrect: while (true) {
+                        displayFiles();              
+                        String index = input.next();
+                        for (int i = 0; i < pathList.size(); i++) {
+                            if (index.equals(String.valueOf(i + 1))) {
+                                JsonReader reader = new JsonReader(pathList.get(i).toString());
+                                resorts.add(reader.read());
+                                break loopUntilCorrect;
+                            }
+                        }
+                    }    
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("IO Exception when reading file");
+        }
+    }
     
-    //EFFECTS: displays options: add new resort, select/show resorts, or exit
+    // EFFECTS: prints file names in ./Data 
+    private void displayFiles() throws IOException {
+        try (Stream<Path> entries = Files.list(Paths.get(DATA_PATH))) {
+            List<Path> pathList = entries.collect(Collectors.toList());
+            for (Path path : pathList) {
+                System.out.println("File " + (pathList.indexOf(path) + 1) + ": " + path.toString());
+            }            
+        }
+    }
+    
+    // EFFECTS: displays options: add new resort, select/show resorts, or exit
     private void displayMainMenu() {
+        System.out.println();
         System.out.println("a - add new resort");
         System.out.println("s - select a resort to edit");
+        System.out.println("f - save resort to file");
+        System.out.println("l - load resort from file");
         System.out.println("e - exit application");
     }
 
-    //EFFECTS: displays options: add trail, select/show trails, or go back
+    // EFFECTS: displays options: add trail, select/show trails, or go back
     private void displayResortMenu() {
+        System.out.println();
         System.out.println("a - add new trail to resort");
         System.out.println("s - select a trail to edit");
         System.out.println("e - go back to previous menu");
     }
 
-    //EFFECTS: displays options: change favorite, change ridden, change open, add note, edit note, or add downhill trail
+    // EFFECTS: displays options to modify a trail
     private void displayTrailMenu() {
-        System.out.println(resorts.get(resortIndex).getTrails().get(trailIndex).getName() + "\n");
+        System.out.println();
+        System.out.println(resorts.get(resortIndex).getTrails().get(trailIndex).getName());
         System.out.println("f - favorite/unfavorite trail");
         System.out.println("r - ride/unride trail");
         System.out.println("o - open/close trail");

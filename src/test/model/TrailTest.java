@@ -1,5 +1,6 @@
 package model;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 
@@ -25,7 +26,7 @@ public class TrailTest {
         testTrail = new Trail("test", "Black", "Peak", "Cliffs");
         testTrail2 = new Trail("test2", "Green", "Base", "Groomed");
         trailList = new ArrayList<>();
-        testNotes = new ArrayList<String>();
+        testNotes = new ArrayList<>();
     }
 
     @Test
@@ -204,6 +205,16 @@ public class TrailTest {
 
     @Test
     public void testToJson() {
+        JSONArray testDownhill = new JSONArray();
+        JSONArray testNotesJson = new JSONArray();
+        testDownhill.put("test2");
+        testNotesJson.put("note");
+        testTrail.addNote("note");
+        try {
+            testTrail.addDownhillTrail(testTrail2);
+        } catch (Exception e) {
+            fail("No exception expected");
+        }
         JSONObject trailJson = testTrail.toJson();
         assertEquals("test", trailJson.get("name"));
         assertEquals("Black", trailJson.get("difficulty"));
@@ -212,7 +223,7 @@ public class TrailTest {
         assertFalse((Boolean) trailJson.get("ridden"));
         assertFalse((Boolean) trailJson.get("open"));
         assertFalse((Boolean) trailJson.get("favorite"));
-        assertTrue(trailJson.getJSONArray("notes").isEmpty());
-        assertTrue(trailJson.getJSONArray("downhillTrails").isEmpty());
+        assertEquals(testNotesJson.toString(), trailJson.get("notes").toString());
+        assertEquals(testDownhill.toString(), trailJson.get("downhillTrails").toString());
     }
 }
