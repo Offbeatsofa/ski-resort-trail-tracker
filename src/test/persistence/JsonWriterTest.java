@@ -4,16 +4,12 @@ import model.Resort;
 import model.Trail;
 import org.junit.jupiter.api.Test;
 
-import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
-
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // code adapted from JsonSerializationDemo
-public class JsonWriterTest extends JsonTest{
-
+public class JsonWriterTest extends JsonTest {
     @Test
     void testWriterInvalidFile() {
         try {
@@ -35,7 +31,7 @@ public class JsonWriterTest extends JsonTest{
             writer.close();
             JsonReader reader = new JsonReader("./data/testWriterEmptyWorkroom.json");
             r = reader.read();
-            assertEquals("EmptyResort", r.getName());
+            assertEquals("Empty Resort", r.getName());
             assertEquals("none", r.getRegion());
             assertTrue(r.getTrails().isEmpty());
         } catch (IOException e) {
@@ -58,6 +54,8 @@ public class JsonWriterTest extends JsonTest{
             } catch (Exception e) {
                 fail("Downhill trail add failed");
             }
+            r.addTrail(name);
+            r.addTrail(name2);
             JsonWriter writer = new JsonWriter("./data/testWriterGeneralWorkroom.json");
             writer.open();
             writer.write(r);
