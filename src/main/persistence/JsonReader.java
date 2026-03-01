@@ -2,7 +2,6 @@ package persistence;
 
 import model.Resort;
 import model.Trail;
-import model.exceptions.NoSuchTrailException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +25,7 @@ public class JsonReader {
 
     // EFFECTS: reads resort from file and returns it;
     // throws IOException if an error occurs reading data from file
-    public Resort read() throws IOException, NoSuchTrailException {
+    public Resort read() throws IOException {
         String jsonData = readFile(source);
         JSONObject jsonObject = new JSONObject(jsonData);
         return parseResort(jsonObject);
@@ -44,7 +43,7 @@ public class JsonReader {
     }
 
     // EFFECTS: parses workroom from JSON object and returns it
-    private Resort parseResort(JSONObject jsonResort) throws NoSuchTrailException {
+    private Resort parseResort(JSONObject jsonResort) {
         String name = jsonResort.getString("name");
         String region = jsonResort.getString("region");
         Resort r = new Resort(name, region);
@@ -54,7 +53,7 @@ public class JsonReader {
 
     // MODIFIES: r
     // EFFECTS: parses trails from JSON object and adds them to resort
-    private void addTrails(Resort r, JSONObject jsonResort) throws NoSuchTrailException {
+    private void addTrails(Resort r, JSONObject jsonResort) {
         JSONArray jsonArray = jsonResort.getJSONArray("trails");
         for (Object json : jsonArray) {
             JSONObject nextTrail = (JSONObject) json;
@@ -65,7 +64,7 @@ public class JsonReader {
     // MODIFIES: r
     // EFFECTS: parses trail from JSON object and creates a trail object
     // TODO ask TA if method length is suppressable
-    private Trail getTrail(JSONObject jsonTrail, JSONArray trailArray) throws NoSuchTrailException {
+    private Trail getTrail(JSONObject jsonTrail, JSONArray trailArray) {
         String name = jsonTrail.getString("name");
         String difficulty = jsonTrail.getString("difficulty");
         String location = jsonTrail.getString("location");
@@ -108,19 +107,16 @@ public class JsonReader {
     }   
 
     // EFFECTS: returns list of downhill trails in trail object
-    private List<Trail> getDownhillTrails(JSONObject jsonTrail, JSONArray resortTrails) throws NoSuchTrailException {
+    private List<Trail> getDownhillTrails(JSONObject jsonTrail, JSONArray resortTrails) {
         List<Trail> returnList = new ArrayList<>();
         List<String> trailNames = getList(jsonTrail, "downhillTrails");
-        nameLoop:
         for (String trailName : trailNames) {
             for (Object item : resortTrails) {
                 JSONObject trail = (JSONObject) item;
                 if (trail.getString("name").equals(trailName)) {
                     returnList.add(getTrail(trail, resortTrails));
-                    continue nameLoop;
                 }
             }
-            throw new NoSuchTrailException();
         }
         return returnList;
     }   

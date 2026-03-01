@@ -2,7 +2,6 @@ package persistence;
 
 import model.Resort;
 import model.Trail;
-import model.exceptions.NoSuchTrailException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,8 +22,6 @@ public class JsonReaderTest extends JsonTest {
         try {
             reader.read();
             fail("IOException expected");
-        } catch (NoSuchTrailException e) {
-            fail("Wrong exception");
         } catch (IOException e) {
             // pass
         }
@@ -40,9 +37,7 @@ public class JsonReaderTest extends JsonTest {
             assertTrue(r.getTrails().isEmpty());
         } catch (IOException e) {
             fail("Couldn't read from file");
-        } catch (NoSuchTrailException e) {
-            fail("Should not throw");
-        }
+        } 
     }
     
     @Test
@@ -65,8 +60,6 @@ public class JsonReaderTest extends JsonTest {
                     new ArrayList<>(), false, false, false, downhill, trails.get(1));
         } catch (IOException e) {
             fail("Couldn't read from file");
-        } catch (NoSuchTrailException e) {
-            fail("Downhill trail exception");
-        }
+        } 
     }
 }
