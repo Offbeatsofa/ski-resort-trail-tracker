@@ -1,5 +1,6 @@
 package model;
 
+import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 
 import model.exceptions.DuplicateTrailException;
@@ -199,5 +200,19 @@ public class TrailTest {
         } catch (DuplicateTrailException e) {
             // pass
         }
+    }
+
+    @Test
+    public void testToJson() {
+        JSONObject trailJson = testTrail.toJson();
+        assertEquals("test", trailJson.get("name"));
+        assertEquals("Black", trailJson.get("difficulty"));
+        assertEquals("Peak", trailJson.get("location"));
+        assertEquals("Cliffs", trailJson.get("features"));
+        assertFalse((Boolean) trailJson.get("ridden"));
+        assertFalse((Boolean) trailJson.get("open"));
+        assertFalse((Boolean) trailJson.get("favorite"));
+        assertTrue(trailJson.getJSONArray("notes").isEmpty());
+        assertTrue(trailJson.getJSONArray("downhillTrails").isEmpty());
     }
 }

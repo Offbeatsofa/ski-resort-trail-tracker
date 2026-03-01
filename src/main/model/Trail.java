@@ -2,15 +2,19 @@ package model;
 
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
 import model.exceptions.DuplicateTrailException;
 import model.exceptions.TrailLoopException;
+import persistence.Writable;
 
 import java.util.ArrayList;
 
 // Represent a skiing trail, with name, difficulty, mountain area, 
 // notes, ridden status, favorite status, and branching trails
-public class Trail {
+public class Trail implements Writable {
 
     private String name;
     private String difficulty;
@@ -124,6 +128,37 @@ public class Trail {
         } else {
             throw new DuplicateTrailException();
         }
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        json.put("name", name);
+        json.put("difficulty", difficulty);
+        json.put("location", location);
+        json.put("features", features);
+        json.put("notes", notesToJson(notes));
+        json.put("ridden", ridden);
+        json.put("open", open);
+        json.put("favorite", favorite);
+        json.put("downhillTrails", downhillToJson(downhillTrails));
+        return json;
+    }
+
+    private JSONArray notesToJson(List<String> notes) {
+        JSONArray array = new JSONArray();
+        for (String s : notes) {
+            array.put(s);
+        }
+        return array;
+    }
+
+    private JSONArray downhillToJson(List<Trail> trails) {
+        JSONArray array = new JSONArray();
+        for (Trail t : trails) {
+            array.put(t.getName());
+        }
+        return array;
     }
 
     @Override

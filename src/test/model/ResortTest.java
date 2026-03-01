@@ -1,5 +1,7 @@
 package model;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 
 import model.exceptions.BadFilterException;
@@ -164,5 +166,16 @@ public class ResortTest {
         testList.add(downhillTrail1);
         testList.add(downhillTrail2);
         assertEquals(testList, testResort.generateRun(testTrail));
+    }
+
+    @Test
+    public void testToJson() {
+        testResort.addTrail(testTrail);
+        JSONObject resortJson = testResort.toJson();
+        assertEquals(testResort.getName(), resortJson.get("name"));
+        assertEquals(testResort.getRegion(), resortJson.get("region"));
+        JSONArray trails = new JSONArray();
+        trails.put(testTrail.toJson());
+        assertEquals(resortJson.get("trails").toString(), trails.toString());
     }
 }

@@ -3,6 +3,10 @@ package model;
 import java.util.List;
 import java.util.Random;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
 import model.exceptions.BadFilterException;
 
 import java.util.ArrayList;
@@ -96,7 +100,24 @@ public class Resort {
         return rndSeed;
     }
 
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        json.put("name", name);
+        json.put("region", region);
+        json.put("trails", trailsToJson());
+        return json;
+    }
+
+    private JSONArray trailsToJson() {
+        JSONArray array = new JSONArray();
+        for (Trail t : trails) {
+            array.put(t.toJson());
+        }
+        return array;
+    }
+
     @Override
+    @ExcludeFromJacocoGeneratedReport
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -107,29 +128,39 @@ public class Resort {
     }
 
     @Override
+    @ExcludeFromJacocoGeneratedReport
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Resort other = (Resort) obj;
         if (name == null) {
-            if (other.name != null)
+            if (other.name != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!name.equals(other.name)) {
             return false;
+        }
         if (region == null) {
-            if (other.region != null)
+            if (other.region != null) {
                 return false;
-        } else if (!region.equals(other.region))
+            }
+        } else if (!region.equals(other.region)) {
             return false;
+        }
         if (trails == null) {
-            if (other.trails != null)
+            if (other.trails != null) {
                 return false;
-        } else if (!trails.equals(other.trails))
+            }
+        } else if (!trails.equals(other.trails)) {
             return false;
+        }
         return true;
     }
 
