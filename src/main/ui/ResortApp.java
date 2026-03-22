@@ -20,6 +20,7 @@ import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
 
 @ExcludeFromJacocoGeneratedReport
 // Resort trail tracking application
+// Code based on TellerApp lecture lab
 public class ResortApp {
 
     private List<Resort> resorts;
@@ -28,9 +29,9 @@ public class ResortApp {
     private int trailIndex;
     private static final String DATA_PATH = "./data/";
 
-    //Code based on TellerApp lecture lab
+    
 
-    //EFFECTS: runs the resort application
+    // EFFECTS: runs the resort application
     public ResortApp() {
         resorts = new ArrayList<>();
         resortIndex = 0;
@@ -39,8 +40,8 @@ public class ResortApp {
         runApp();
     }
 
-    //MODIFIES: this
-    //EFFECTS: processes user input
+    // MODIFIES: this
+    // EFFECTS: processes user input
     private void runApp() {
         String command = null;
 
@@ -55,12 +56,11 @@ public class ResortApp {
                 processMainCommand(command);
             }
         }
-
         System.out.println("\nGoodbye!");
     }
 
-    //MODIFIES: this
-    //EFFECTS: processes user command in main menu
+    // MODIFIES: this
+    // EFFECTS: processes user command in main menu
     private void processMainCommand(String command) {
         if (command.equals("a")) {
             doAddResort();
@@ -80,6 +80,8 @@ public class ResortApp {
         }
     }
     
+    // MODIFIES: this
+    // EFFECTS: processes user command in the resort menu
     private void processResortCommand(String command) {    
         if (command.equals("a")) {
             doAddTrail(resorts.get(resortIndex));
@@ -94,6 +96,8 @@ public class ResortApp {
         }    
     }
 
+    // MODIFIES: this
+    // EFFECTS: processes user command in the trail menu
     private void processTrailCommand(String command) {
         Trail t = resorts.get(resortIndex).getTrails().get(trailIndex);
         switch (command) {
@@ -120,8 +124,8 @@ public class ResortApp {
         }
     }
 
-    //MODIFIES: this, newResort
-    //EFFECTS: creates a new resort based on user inputs
+    // MODIFIES: this, newResort
+    // EFFECTS: creates a new resort based on user inputs
     private void doAddResort() {
         System.out.println("Name: \n");
         String name = input.nextLine();
@@ -130,8 +134,8 @@ public class ResortApp {
         resorts.add(new Resort(name, region));
     }
 
-    //REQUIRES: resorts is not empty
-    //EFFECTS: selects an added resort
+    // REQUIRES: resorts is not empty
+    // EFFECTS: selects an added resort
     private void doSelectResort() {
         showResorts();
         loopUntilCorrect:
@@ -148,6 +152,7 @@ public class ResortApp {
         }
     }
 
+    // EFFECTS: displays resort menu and processes user command  
     private void resortMenu() {
         while (true) {
             displayResortMenu();
@@ -162,6 +167,7 @@ public class ResortApp {
         }
     }
 
+    // EFFECTS: prints out resorts to console
     private void showResorts() {
         for (Resort r : resorts) {
             System.out.println("Resort " + String.valueOf(resorts.indexOf(r) + 1) + ": " + r.getName());
@@ -202,6 +208,7 @@ public class ResortApp {
         trailMenu();
     }
     
+    // EFFECTS: displays resort menu and processes user command
     private void trailMenu() {
         while (true) {
             displayTrailMenu();
@@ -216,6 +223,7 @@ public class ResortApp {
         }
     }
 
+    // EFFECTS: prints out a resort's trails to console
     private void showTrails(Resort r) {
         for (Trail t : r.getTrails()) {
             System.out.println("Trail " + String.valueOf(r.getTrails().indexOf(t) + 1) + ": " + t.getName());

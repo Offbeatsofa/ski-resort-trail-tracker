@@ -31,18 +31,6 @@ public class Resort {
         rnd.setSeed(rndSeed);
     }
 
-    public String getName() {
-        return name; // stub
-    }
-
-    public String getRegion() {
-        return region; // stub
-    }
-
-    public List<Trail> getTrails() {
-        return trails; // stub
-    }
-
     //REQUIRES: filterType is one of "difficulty", "location", or "features"
     //EFFECTS: returns trails that have the same <filterType> as filterValue, or null if none
     public List<Trail> getTrails(String filterType, String filterValue) throws BadFilterException {
@@ -100,6 +88,7 @@ public class Resort {
         return rndSeed;
     }
 
+    // EFFECTS: Returns this as a JSONObject
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         json.put("name", name);
@@ -108,6 +97,7 @@ public class Resort {
         return json;
     }
 
+    // EFFECTS: Returns the list of trails as a JSONArray
     private JSONArray trailsToJson() {
         JSONArray array = new JSONArray();
         for (Trail t : trails) {
@@ -165,4 +155,15 @@ public class Resort {
         return true;
     }
 
+    public String getName() {
+        return name; 
+    }
+
+    public String getRegion() {
+        return region; 
+    }
+
+    public List<Trail> getTrails() {
+        return trails; 
+    }
 }

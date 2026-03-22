@@ -41,41 +41,7 @@ public class Trail implements Writable {
         this.downhillTrails = new ArrayList<Trail>();
     }
 
-    public String getName() {
-        return name;
-    }
 
-    public String getDifficulty() {
-        return difficulty;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public String getFeatures() {
-        return features;
-    }
-
-    public boolean isRidden() {
-        return ridden;
-    }
-
-    public boolean isOpen() {
-        return open; 
-    }
-
-    public boolean isFavorite() {
-        return favorite;
-    }
-
-    public List<String> getNotes() {
-        return notes;
-    }
-
-    public List<Trail> getDownhillTrails() {
-        return downhillTrails;
-    }
 
     // MODIFIES: this
     // EFFECTS: changes favorite status and returns new status
@@ -130,6 +96,7 @@ public class Trail implements Writable {
         }
     }
 
+    // EFFECTS: returns this trail as a JSONObject
     @Override
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
@@ -145,6 +112,7 @@ public class Trail implements Writable {
         return json;
     }
 
+    // EFFECTS: returns notes as a JSONArray
     private JSONArray notesToJson(List<String> notes) {
         JSONArray array = new JSONArray();
         for (String s : notes) {
@@ -153,6 +121,7 @@ public class Trail implements Writable {
         return array;
     }
 
+    // EFFECTS: returns downhill trails as JSONArray of their names
     private JSONArray downhillToJson(List<Trail> trails) {
         JSONArray array = new JSONArray();
         for (Trail t : trails) {
@@ -244,5 +213,41 @@ public class Trail implements Writable {
             return false;
         }
         return true;
+    }
+    
+    public String getName() {
+        return name;
+    }
+
+    public String getDifficulty() {
+        return difficulty;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getFeatures() {
+        return features;
+    }
+
+    public boolean isRidden() {
+        return ridden;
+    }
+
+    public boolean isOpen() {
+        return open; 
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public List<String> getNotes() {
+        return notes;
+    }
+
+    public List<Trail> getDownhillTrails() {
+        return downhillTrails;
     }
 }
