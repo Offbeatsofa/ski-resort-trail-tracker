@@ -40,6 +40,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
 
     private int selectedIndex;
     private JList<String> currentList;
+    private int fileIndex;
 
     // EFFECTS: initializes the application
     public ResortTracker() {
@@ -101,7 +102,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
 
     // EFFECTS: creates a panel that shows a map of a resort
     private JPanel mapPanel() throws FileNotFoundException, IOException {
-        BufferedImage mapImage = ImageIO.read(new File("./data/map.jpeg"));
+        BufferedImage mapImage = ImageIO.read(new File(".\\data\\whistler.png"));
         JLabel mapLabel = new JLabel(new ImageIcon(mapImage));
 
         JPanel returnPanel = new JPanel();
@@ -127,12 +128,27 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         downhillButton.addActionListener(this);
         downhillButton.setActionCommand("downhill"); 
 
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(this);
+        saveButton.setActionCommand("save"); 
+
         JPanel returnPanel = new JPanel();
         returnPanel.setMinimumSize(new Dimension(WIDTH, HEIGHT));
         returnPanel.add(trailScrollPane, BorderLayout.PAGE_START);
         returnPanel.add(filterButton, BorderLayout.SOUTH);
         returnPanel.add(downhillButton, BorderLayout.SOUTH);
+        returnPanel.add(saveButton, BorderLayout.SOUTH);
         return returnPanel;
+    }
+
+    // EFFECTS: saves file to current location
+    private void saveFile() {
+        try (Stream<Path> entries = Files.list(Paths.get(DATA_PATH))) {
+            List<Path> pathList = entries.collect(Collectors.toList());
+            JOptionPane.showMessageDialog(null, "File saved to " + pathList.get(fileIndex).toString());
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Error: file not saved.");
+        }
     }
 
     // EFFECTS: returns a list of trails using the selected index, and filtering if necessary
@@ -206,6 +222,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
     public void actionPerformed(ActionEvent e) {
         CardLayout cl = (CardLayout)(cards.getLayout());
         if (e.getActionCommand().equals("file")) {
+            fileIndex = selectedIndex;
             cards.add(trailPanel(false, -1), "trail");
             cl.show(cards, "trail");
         } else if (e.getActionCommand().equals("map")) {
@@ -215,6 +232,8 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
             cl.show(cards, "filter");
         } else if (e.getActionCommand().equals("downhill")) {
             downhillTrails();
+        } else if (e.getActionCommand().equals("save")) {
+            saveFile();
         }
     }
 

@@ -41,3 +41,11 @@ It will be used by anyone who wants to record and/or look at ski runs at differe
 
 ## Instructions for End User
 
+ - You can view the panel that displays the Trails added to a resort by selecting a file and clicking open
+ - You can filter trails that have been added to a resort by clicking the filter button on the trail screen
+ - You can generate downhill trails by clicking on the downhill trails button while a trail is selected on the trail screen
+ - You can locate my visual component by clicking the map button on the file screen
+ - You can save the state of my application by clicking the save button on the trail screen
+ - You can load the state of my application by opening a file from the file select screen
+
+
