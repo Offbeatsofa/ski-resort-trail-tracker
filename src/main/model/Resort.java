@@ -58,6 +58,10 @@ public class Resort {
         }
         return returnList.isEmpty() ? null : returnList;
     }
+
+    public List<Trail> getTrails() {
+        return trails; 
+    }
     
     /* REQUIRES: t is not already in resort
      * MODIFIES: this
@@ -161,9 +165,5 @@ public class Resort {
 
     public String getRegion() {
         return region; 
-    }
-
-    public List<Trail> getTrails() {
-        return trails; 
     }
 }
