@@ -18,6 +18,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +37,9 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
 
     private JFrame frame;
     private JPanel cards;
+
+    private int selectedIndex;
+    private JList<String> currentList;
 
     // EFFECTS: initializes the application
     public ResortTracker() {
@@ -57,21 +62,13 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
     // EFFECTS: creates new card layout and sets cards
     private void createCards() {
         JPanel fileCard = filePanel();
-        JPanel mapCard = mapPanel();
-
         cards = new JPanel(new CardLayout());
         cards.add(fileCard, "file");
-        cards.add(mapCard, "map");
-    }
-
-    private JPanel mapPanel() {
-        ImageIcon map = new ImageIcon("./data/Whister-Blackcomb-FB.jpg");
-        JLabel mapLabel = new JLabel(map);
-
-        JPanel returnPanel = new JPanel();
-        returnPanel.setSize((int)(WIDTH*0.8), (int)(HEIGHT*0.8));
-        returnPanel.add(mapLabel);
-        return returnPanel;
+        try {
+            cards.add(mapPanel(), "map");
+        } catch (Exception e) {
+            System.out.println("Map panel could not be displayed: " + e.getMessage());
+        }
     }
 
     // EFFECTS: creates a panel to view files
@@ -82,6 +79,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         } catch (IOException e) {
             fileList = new JList<>(new DefaultListModel<String>());
         }
+        currentList = fileList;
         JScrollPane listScrollPane = new JScrollPane(fileList);
         listScrollPane.setSize(WIDTH, ((int)(HEIGHT*0.7)));
 
@@ -101,7 +99,81 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         return returnPanel;
     }
 
-    // EFFECTS: creates a jlist of file names in data path
+    // EFFECTS: creates a panel that shows a map of a resort
+    private JPanel mapPanel() throws FileNotFoundException, IOException {
+        BufferedImage mapImage = ImageIO.read(new File("./data/map.jpeg"));
+        JLabel mapLabel = new JLabel(new ImageIcon(mapImage));
+
+        JPanel returnPanel = new JPanel();
+        returnPanel.setSize((int)(WIDTH*0.8), (int)(HEIGHT*0.8));
+        returnPanel.add(mapLabel);
+        return returnPanel;
+    }
+
+    // EFFECTS: returns a panel with a list of trails 
+    private JPanel trailPanel(Boolean filter, int filterIndex) {
+
+        JList<String> trailList = readTrails(filter, filterIndex);
+        trailList.addListSelectionListener(this);
+        currentList = trailList;
+        JScrollPane trailScrollPane = new JScrollPane(trailList);
+        trailScrollPane.setSize(WIDTH, ((int)(HEIGHT*0.7)));
+        
+        JButton filterButton = new JButton("Filter");
+        filterButton.addActionListener(this);
+        filterButton.setActionCommand("filter"); 
+
+        JButton downhillButton = new JButton("Downhill Trails");
+        downhillButton.addActionListener(this);
+        downhillButton.setActionCommand("downhill"); 
+
+        JPanel returnPanel = new JPanel();
+        returnPanel.setMinimumSize(new Dimension(WIDTH, HEIGHT));
+        returnPanel.add(trailScrollPane, BorderLayout.PAGE_START);
+        returnPanel.add(filterButton, BorderLayout.SOUTH);
+        returnPanel.add(downhillButton, BorderLayout.SOUTH);
+        return returnPanel;
+    }
+
+    // EFFECTS: returns a list of trails using the selected index, and filtering if necessary
+    private JList<String> readTrails(Boolean filter, int filterIndex) {
+        DefaultListModel<String> m = new DefaultListModel<>();
+        try (Stream<Path> entries = Files.list(Paths.get(DATA_PATH))){
+            List<Path> pathList = entries.collect(Collectors.toList());
+            JsonReader reader = new JsonReader(pathList.get(selectedIndex).toString());
+            Resort r = reader.read();
+            if (!filter) {
+                for (Trail t : r.getTrails()) {
+                    m.addElement(t.getName());
+                }
+            } else {
+                switch(filterIndex) {
+                    case 0:
+                        m.addElement(r.getTrails().get(0).getName());
+                        break;
+                    case 1: 
+                        m.addElement(r.getTrails().get(1).getName());
+                        break;
+                    case 2: 
+                        m.addElement(r.getTrails().get(0).getName());  
+                        m.addElement(r.getTrails().get(1).getName());
+                }
+            }
+            
+        } catch (IOException e) {
+            int bad = 2/0;
+        }
+        JList<String> returnList = new JList<>(m);
+        return returnList;
+    }
+
+    // EFFECTS: shows filter dialogue box and returns result
+    private int filterBox() {
+        String filterIndex = JOptionPane.showInputDialog(null, "Filter type? difficulty - 0, location - 1, features - 2");
+        return Integer.parseInt(filterIndex);
+    }
+
+    // EFFECTS: creates a JList of file names in data path
     private JList<String> listFiles() throws IOException {
         DefaultListModel<String> fileListModel = new DefaultListModel<>();
         try (Stream<Path> entries = Files.list(Paths.get(DATA_PATH))) {
@@ -119,17 +191,42 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         return returnList;
     }
 
-    public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("file")) {
-
-        } else if (e.getActionCommand().equals("map")) {
-            CardLayout cl = (CardLayout)(cards.getLayout());
-            cl.show(cards, "map");
+    // EFFECTS: lists downhill trails from selected trail
+    private void downhillTrails() {
+        if (selectedIndex == 0) {
+            JOptionPane.showMessageDialog(null, "No downhill trails :(");
+        } else if (selectedIndex == 1) {
+            JOptionPane.showMessageDialog(null, "Downhill trails: name");
+        } else {
+            JOptionPane.showMessageDialog(null, "No Trail Selected!");
         }
     }
 
-    public void valueChanged(ListSelectionEvent e) {
+    // EFFECTS: controls action when button is pressed
+    public void actionPerformed(ActionEvent e) {
+        CardLayout cl = (CardLayout)(cards.getLayout());
+        if (e.getActionCommand().equals("file")) {
+            cards.add(trailPanel(false, -1), "trail");
+            cl.show(cards, "trail");
+        } else if (e.getActionCommand().equals("map")) {
+            cl.show(cards, "map");
+        } else if (e.getActionCommand().equals("filter")) {
+            cards.add(trailPanel(true, filterBox()), "filter");
+            cl.show(cards, "filter");
+        } else if (e.getActionCommand().equals("downhill")) {
+            downhillTrails();
+        }
+    }
 
+    // Changes selected index when a list has a new value selected
+    public void valueChanged(ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting()) {
+            if (currentList.getSelectedIndex() == -1) {
+                // no value selected
+            } else {
+                selectedIndex = currentList.getSelectedIndex();
+            }
+        }
     }
 
     public static void main(String args[]) {
