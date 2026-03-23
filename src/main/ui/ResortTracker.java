@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+// GUI ski resort trail tracking application
 public class ResortTracker implements ActionListener, ListSelectionListener {
 
     public static final int WIDTH = 1000;
@@ -152,7 +154,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         DefaultListModel<String> m = new DefaultListModel<>();
         try (Stream<Path> entries = Files.list(Paths.get(DATA_PATH))) {
             List<Path> pathList = entries.collect(Collectors.toList());
-            JsonReader reader = new JsonReader(pathList.get(selectedIndex).toString());
+            JsonReader reader = new JsonReader(pathList.get(fileIndex).toString());
             Resort r = reader.read();
             if (!filter) {
                 for (Trail t : r.getTrails()) {
