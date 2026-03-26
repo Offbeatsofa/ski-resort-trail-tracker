@@ -8,6 +8,7 @@ import javax.swing.event.ListSelectionListener;
 import model.Resort;
 import model.Trail;
 import persistence.JsonReader;
+import persistence.JsonWriter;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -27,9 +28,10 @@ import java.util.stream.Stream;
 // GUI ski resort trail tracking application
 public class ResortTracker implements ActionListener, ListSelectionListener {
 
-    public static final int WIDTH = 1000;
-    public static final int HEIGHT = 700;
+    public static final int WIDTH = (int)(1000*0.7);
+    public static final int HEIGHT = (int)(700*0.7);
     public static final String DATA_PATH = "./data/";
+    public static final String MAP_PHOTO = "./photos/whistler.png";
 
     private JFrame frame;
     private JPanel cards;
@@ -37,6 +39,8 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
     private int selectedIndex;
     private JList<String> currentList;
     private int fileIndex;
+
+    private Resort resort;
 
     // EFFECTS: initializes the application
     public ResortTracker() {
@@ -61,11 +65,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         JPanel fileCard = filePanel();
         cards = new JPanel(new CardLayout());
         cards.add(fileCard, "file");
-        try {
-            cards.add(mapPanel(), "map");
-        } catch (Exception e) {
-            System.out.println("Map panel could not be displayed: " + e.getMessage());
-        }
+        cards.add(mapPanel(), "map");
     }
 
     // EFFECTS: creates a panel to view files
@@ -78,11 +78,11 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         }
         currentList = fileList;
         JScrollPane listScrollPane = new JScrollPane(fileList);
-        listScrollPane.setSize(WIDTH, ((int)(HEIGHT * 0.7)));
+        listScrollPane.setPreferredSize(new Dimension((int)(WIDTH*0.7), HEIGHT));
 
         JButton openButton = new JButton("Open");
         openButton.addActionListener(this);
-        openButton.setActionCommand("file");
+        openButton.setActionCommand("load");
 
         JButton mapButton = new JButton("Map");
         mapButton.addActionListener(this);
@@ -97,25 +97,39 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
     }
 
     // EFFECTS: creates a panel that shows a map of a resort
-    private JPanel mapPanel() throws FileNotFoundException, IOException {
-        File mapFile = new File(".\\data\\whistler.png");
-        BufferedImage mapImage = ImageIO.read(mapFile);
-        JLabel mapLabel = new JLabel(new ImageIcon(mapImage));
+    private JPanel mapPanel() {
+        File mapFile = new File(MAP_PHOTO);
+        BufferedImage mapImage;
+        try {
+            mapImage = ImageIO.read(mapFile);
+        } catch (IOException e) {
+            mapImage = null;
+            System.out.println(e.getMessage());
+        }
+        Image scaledImage = mapImage.getScaledInstance((int)(WIDTH*0.9),-1, Image.SCALE_SMOOTH);
+        JLabel mapLabel = new JLabel(new ImageIcon(scaledImage));
+
+        JButton backButton = new JButton("Back");
+        backButton.addActionListener(this);
+        backButton.setActionCommand("file");
 
         JPanel returnPanel = new JPanel();
         returnPanel.setSize((int)(WIDTH * 0.8), (int)(HEIGHT * 0.8));
-        returnPanel.add(mapLabel);
+        returnPanel.add(mapLabel, BorderLayout.SOUTH);
+        returnPanel.add(backButton, BorderLayout.NORTH);
         return returnPanel;
     }
 
     // EFFECTS: returns a panel with a list of trails 
     private JPanel trailPanel(Boolean filter, int filterIndex) {
 
+        setResort();
+
         JList<String> trailList = readTrails(filter, filterIndex);
         trailList.addListSelectionListener(this);
         currentList = trailList;
         JScrollPane trailScrollPane = new JScrollPane(trailList);
-        trailScrollPane.setSize(WIDTH, ((int)(HEIGHT * 0.7)));
+        trailScrollPane.setPreferredSize(new Dimension(((int)(WIDTH * 0.7)), (int)(HEIGHT*0.7)));
         
         JButton filterButton = new JButton("Filter");
         filterButton.addActionListener(this);
@@ -129,12 +143,15 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         saveButton.addActionListener(this);
         saveButton.setActionCommand("save"); 
 
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(filterButton, BorderLayout.WEST);
+        buttonPanel.add(downhillButton, BorderLayout.CENTER);
+        buttonPanel.add(saveButton, BorderLayout.EAST);
+
         JPanel returnPanel = new JPanel();
         returnPanel.setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        returnPanel.add(trailScrollPane, BorderLayout.PAGE_START);
-        returnPanel.add(filterButton, BorderLayout.SOUTH);
-        returnPanel.add(downhillButton, BorderLayout.SOUTH);
-        returnPanel.add(saveButton, BorderLayout.SOUTH);
+        returnPanel.add(trailScrollPane, BorderLayout.PAGE_END);
+        returnPanel.add(buttonPanel, BorderLayout.PAGE_START);
         return returnPanel;
     }
 
@@ -142,37 +159,45 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
     // EFFECTS: saves file to current location
     private void saveFile() {
         try (Stream<Path> entries = Files.list(Paths.get(DATA_PATH))) {
-            List<Path> pathList = entries.collect(Collectors.toList());
-            JOptionPane.showMessageDialog(null, "File saved to " + pathList.get(fileIndex).toString());
-        } catch (IOException e) {
+            String filePath = entries.collect(Collectors.toList()).get(fileIndex).toString();
+            JsonWriter writer = new JsonWriter(filePath);
+            writer.open();
+            writer.write(resort);
+            writer.close();
+            JOptionPane.showMessageDialog(null, "File saved to " + filePath);
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error: file not saved.");
+        }
+    }
+
+    // MODIFIES: this
+    // EFFECTS: sets resort to the one located at current file index
+    private void setResort() {
+        try (Stream<Path> entries = Files.list(Paths.get(DATA_PATH))) {
+            List<Path> pathList = entries.collect(Collectors.toList());
+            JsonReader reader = new JsonReader(pathList.get(fileIndex).toString());
+            this.resort = reader.read();
+        } catch (IOException e) {
+            this.resort = null;
+            System.out.println("couldn't read resort.");
         }
     }
 
     // EFFECTS: returns a list of trails using the selected index, and filtering if necessary
     private JList<String> readTrails(Boolean filter, int filterIndex) {
         DefaultListModel<String> m = new DefaultListModel<>();
-        try (Stream<Path> entries = Files.list(Paths.get(DATA_PATH))) {
-            List<Path> pathList = entries.collect(Collectors.toList());
-            JsonReader reader = new JsonReader(pathList.get(fileIndex).toString());
-            Resort r = reader.read();
-            if (!filter) {
-                for (Trail t : r.getTrails()) {
-                    m.addElement(t.getName());
-                }
-            } else {
-                switch (filterIndex) {
-                    case 0: m.addElement(r.getTrails().get(0).getName());
-                        break;
-                    case 1: m.addElement(r.getTrails().get(1).getName());
-                        break;
-                    case 2: m.addElement(r.getTrails().get(0).getName());  
-                        m.addElement(r.getTrails().get(1).getName());
-                        break;
-                }
+        if (!filter) {
+            for (Trail t : resort.getTrails()) {
+                m.addElement(t.getName());
             }
-            
-        } catch (IOException e) { /* non empty catch block */ }
+        } else {
+            switch (filterIndex) {
+                // TODO
+            }
+            for (Trail t : resort.getTrails()) {
+                m.addElement(t.getName());
+            }
+        }
         JList<String> returnList = new JList<>(m);
         return returnList;
     }
@@ -216,20 +241,27 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
     // EFFECTS: controls action when button is pressed
     public void actionPerformed(ActionEvent e) {
         CardLayout cl = (CardLayout)(cards.getLayout());
-        if (e.getActionCommand().equals("file")) {
-            fileIndex = selectedIndex;
-            cards.add(trailPanel(false, -1), "trail");
-            cl.show(cards, "trail");
-            selectedIndex = -1;
-        } else if (e.getActionCommand().equals("map")) {
-            cl.show(cards, "map");
-        } else if (e.getActionCommand().equals("filter")) {
-            cards.add(trailPanel(true, filterBox()), "filter");
-            cl.show(cards, "filter");
-        } else if (e.getActionCommand().equals("downhill")) {
-            downhillTrails();
-        } else if (e.getActionCommand().equals("save")) {
-            saveFile();
+        switch (e.getActionCommand()) {
+            case "load":
+                fileIndex = selectedIndex;
+                cards.add(trailPanel(false, -1), "trail");
+                cl.show(cards, "trail");
+                selectedIndex = -1;
+                break;
+            case "map": cl.show(cards, "map");
+                break;
+            case "file": cl.show(cards, "file");
+                break;
+            case "filter":
+                cards.add(trailPanel(true, filterBox()), "filter");
+                cl.show(cards, "filter");
+                break;
+            case "downhill": downhillTrails();
+                break;
+            case "save": saveFile();
+                break;
+            default:
+                System.out.println("Button without implemented function!");
         }
     }
 

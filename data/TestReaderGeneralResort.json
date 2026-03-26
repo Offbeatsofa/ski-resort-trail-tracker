@@ -1,29 +1,28 @@
 {
     "name": "Resort",
-    "region": "Region",
     "trails": [
         {
-            "name": "name",
             "difficulty": "difficulty",
-            "location": "location",
             "features": "features",
             "notes": ["note"],
-            "ridden": true,
-            "open": true,
+            "name": "name",
+            "location": "location",
             "favorite": true,
-            "downhillTrails": []
+            "downhillTrails": [],
+            "open": true,
+            "ridden": true
         },
-
         {
-            "name": "name2",
             "difficulty": "difficulty2",
-            "location": "location2",
             "features": "features2",
             "notes": [],
-            "ridden": false,
-            "open": false,
+            "name": "name2",
+            "location": "location2",
             "favorite": false,
-            "downhillTrails": ["name"]
+            "downhillTrails": ["name"],
+            "open": false,
+            "ridden": false
         }
-    ]
+    ],
+    "region": "Region"
 }
