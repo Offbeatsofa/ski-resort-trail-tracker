@@ -21,7 +21,7 @@ import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
 @ExcludeFromJacocoGeneratedReport
 // Resort trail tracking application
 // Code based on TellerApp lecture lab
-public class ResortApp {
+public class ResortAppConsole {
 
     private List<Resort> resorts;
     private Scanner input;
@@ -32,7 +32,7 @@ public class ResortApp {
     
 
     // EFFECTS: runs the resort application
-    public ResortApp() {
+    public ResortAppConsole() {
         resorts = new ArrayList<>();
         resortIndex = 0;
         trailIndex = 0;
