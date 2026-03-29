@@ -64,6 +64,5 @@ Run generated
 
 ## Phase 4: task 3
 
-If I had had more time to improve my design, I likely would have refactored my code by redesigning the ResortTracker class to be more like the ResortAppConsole class. I started off by having a class to test out various Swing features, but that ended up turning into my main application, which made it so that many of the helper methods were written in very inconsistent ways. For example, some of them depend on getting a resort from the currently selected file, while some of them use a stored field to access resort data. By doing this refactoring, the project would have decreased coupling, as it wouldn't have to depend on the JsonReader and JsonWriter class as much. 
-
+If I had had more time to improve my design, I likely would have refactored my code by redesigning the ResortTracker class to be more like the ResortAppConsole class. I started off by having a class to test out various Swing features, but that ended up turning into my main application, which made it so that many of the helper methods were written in very inconsistent ways. For example, some of them depend on getting a resort from the currently selected file, while some of them use a stored field to access resort data. This refactoring would help to loosen coupling, as in this example, ResortTracker would have less of a dependency on the JsonReader and JsonWriter classes.
 

@@ -7,11 +7,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
+import persistence.Writable;
 
 import java.util.ArrayList;
 
 // Represents a ski resort, with name, trails, and region
-public class Resort {
+public class Resort implements Writable {
 
     private String name;
     private String region;
