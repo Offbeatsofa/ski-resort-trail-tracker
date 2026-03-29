@@ -307,10 +307,6 @@ public class ResortTracker implements ActionListener, ListSelectionListener, Win
         }
     }
 
-    public void WindowClosed() {
-
-    }
-
     public static void main(String[] args) {
         new ResortTracker();
     }
