@@ -48,4 +48,18 @@ It will be used by anyone who wants to record and/or look at ski runs at differe
  - You can save the state of my application by clicking the save button on the trail screen
  - You can load the state of my application by opening a file from the file select screen
 
+## Phase 4: task 2
+
+Sat Mar 28 20:22:17 PDT 2026
+Trails obtained
+
+Sat Mar 28 20:22:23 PDT 2026
+Filtered trails obtained
+
+Sat Mar 28 20:22:31 PDT 2026
+Filtered trails obtained
+
+Sat Mar 28 20:22:37 PDT 2026
+Run generated
+
 

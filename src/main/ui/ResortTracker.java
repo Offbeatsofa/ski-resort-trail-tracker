@@ -5,17 +5,20 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import model.EventLog;
 import model.Resort;
 import model.Trail;
+import model.Resort.Filter;
 import persistence.JsonReader;
 import persistence.JsonWriter;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,10 +29,10 @@ import java.util.stream.Stream;
 
 
 // GUI ski resort trail tracking application
-public class ResortTracker implements ActionListener, ListSelectionListener {
+public class ResortTracker implements ActionListener, ListSelectionListener, WindowListener {
 
-    public static final int WIDTH = (int)(1000*0.7);
-    public static final int HEIGHT = (int)(700*0.7);
+    public static final int WIDTH = (int)(1000 * 0.7);
+    public static final int HEIGHT = (int)(700 * 0.7);
     public static final String DATA_PATH = "./data/";
     public static final String MAP_PHOTO = "./photos/whistler.png";
 
@@ -56,6 +59,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         frame.getContentPane().add(cards);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
+        frame.addWindowListener(this);
         frame.setVisible(true);
     }
 
@@ -78,7 +82,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         }
         currentList = fileList;
         JScrollPane listScrollPane = new JScrollPane(fileList);
-        listScrollPane.setPreferredSize(new Dimension((int)(WIDTH*0.7), HEIGHT));
+        listScrollPane.setPreferredSize(new Dimension((int)(WIDTH * 0.7), HEIGHT));
 
         JButton openButton = new JButton("Open");
         openButton.addActionListener(this);
@@ -98,16 +102,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
 
     // EFFECTS: creates a panel that shows a map of a resort
     private JPanel mapPanel() {
-        File mapFile = new File(MAP_PHOTO);
-        BufferedImage mapImage;
-        try {
-            mapImage = ImageIO.read(mapFile);
-        } catch (IOException e) {
-            mapImage = null;
-            System.out.println(e.getMessage());
-        }
-        Image scaledImage = mapImage.getScaledInstance((int)(WIDTH*0.9),-1, Image.SCALE_SMOOTH);
-        JLabel mapLabel = new JLabel(new ImageIcon(scaledImage));
+        JLabel mapLabel = getImageLabel(MAP_PHOTO);
 
         JButton backButton = new JButton("Back");
         backButton.addActionListener(this);
@@ -120,17 +115,45 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         return returnPanel;
     }
 
+    // EFFECTS: returns JLable with image found at path
+    private JLabel getImageLabel(String path) {
+        File mapFile = new File(path);
+        BufferedImage mapImage;
+        try {
+            mapImage = ImageIO.read(mapFile);
+        } catch (IOException e) {
+            mapImage = null;
+            System.out.println(e.getMessage());
+        }
+        Image scaledImage = mapImage.getScaledInstance((int)(WIDTH * 0.9), -1, Image.SCALE_SMOOTH);
+        JLabel mapLabel = new JLabel(new ImageIcon(scaledImage));
+        return mapLabel;
+    }
+
     // EFFECTS: returns a panel with a list of trails 
-    private JPanel trailPanel(Boolean filter, int filterIndex) {
-
+    private JPanel trailPanel(Boolean filter, String filterIndex) {
         setResort();
+        JScrollPane trailScrollPane = getTrailScrollPane(filter, filterIndex);
+        JPanel buttonPanel = getButtonPanel();
+        JPanel returnPanel = new JPanel();
+        returnPanel.setMinimumSize(new Dimension(WIDTH, HEIGHT));
+        returnPanel.add(trailScrollPane, BorderLayout.PAGE_END);
+        returnPanel.add(buttonPanel, BorderLayout.PAGE_START);
+        return returnPanel;
+    }
 
+    // EFFECTS: returns a scroll pane with all of resort's trails
+    private JScrollPane getTrailScrollPane(Boolean filter, String filterIndex) {
         JList<String> trailList = readTrails(filter, filterIndex);
         trailList.addListSelectionListener(this);
         currentList = trailList;
         JScrollPane trailScrollPane = new JScrollPane(trailList);
-        trailScrollPane.setPreferredSize(new Dimension(((int)(WIDTH * 0.7)), (int)(HEIGHT*0.7)));
-        
+        trailScrollPane.setPreferredSize(new Dimension(((int)(WIDTH * 0.7)), (int)(HEIGHT * 0.7)));
+        return trailScrollPane;
+    }
+
+    // EFFECTS: returns a jpanel with filter, downhill, and save buttons
+    private JPanel getButtonPanel() {
         JButton filterButton = new JButton("Filter");
         filterButton.addActionListener(this);
         filterButton.setActionCommand("filter"); 
@@ -147,12 +170,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         buttonPanel.add(filterButton, BorderLayout.WEST);
         buttonPanel.add(downhillButton, BorderLayout.CENTER);
         buttonPanel.add(saveButton, BorderLayout.EAST);
-
-        JPanel returnPanel = new JPanel();
-        returnPanel.setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        returnPanel.add(trailScrollPane, BorderLayout.PAGE_END);
-        returnPanel.add(buttonPanel, BorderLayout.PAGE_START);
-        return returnPanel;
+        return buttonPanel;
     }
 
     // MODIFIES: /data
@@ -184,7 +202,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
     }
 
     // EFFECTS: returns a list of trails using the selected index, and filtering if necessary
-    private JList<String> readTrails(Boolean filter, int filterIndex) {
+    private JList<String> readTrails(Boolean filter, String filterIndex) {
         DefaultListModel<String> m = new DefaultListModel<>();
         if (!filter) {
             for (Trail t : resort.getTrails()) {
@@ -192,21 +210,31 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
             }
         } else {
             switch (filterIndex) {
-                // TODO
-            }
-            for (Trail t : resort.getTrails()) {
-                m.addElement(t.getName());
+                case "0": for (Trail t : resort.getTrails(Filter.DIFFICULTY, getFilter())) {
+                        m.addElement(t.getName());
+                    }
+                    break;
+                case "1": for (Trail t : resort.getTrails(Filter.LOCATION, getFilter())) {
+                        m.addElement(t.getName());
+                    }
+                    break;
+                case "2": for (Trail t : resort.getTrails(Filter.FEATURES, getFilter())) {
+                        m.addElement(t.getName());
+                    }
+                    break;
+                default:    
             }
         }
-        JList<String> returnList = new JList<>(m);
-        return returnList;
+        return new JList<>(m);
+    }
+
+    private String getFilter() {
+        return JOptionPane.showInputDialog("Filter?");
     }
 
     // EFFECTS: shows filter dialogue box and returns result
-    private int filterBox() {
-        String filterIndex = JOptionPane.showInputDialog(
-                null, "Filter type? difficulty - 0, location - 1, features - 2");
-        return Integer.parseInt(filterIndex);
+    private String filterBox() {
+        return JOptionPane.showInputDialog(null, "Filter type? difficulty - 0, location - 1, features - 2");
     }
 
     // EFFECTS: creates a JList of file names in data path
@@ -229,12 +257,15 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
 
     // EFFECTS: lists downhill trails from selected trail
     private void downhillTrails() {
-        if (selectedIndex == 0) {
-            JOptionPane.showMessageDialog(null, "No downhill trails :(");
-        } else if (selectedIndex == 1) {
-            JOptionPane.showMessageDialog(null, "Downhill trails: name");
-        } else {
-            JOptionPane.showMessageDialog(null, "No Trail Selected!");
+        for (Trail t : resort.getTrails()) {
+            if (resort.getTrails().indexOf(t) == selectedIndex) {
+                List<Trail> run = resort.generateRun(t);
+                StringBuilder trails = new StringBuilder("Run: ");
+                for (Trail trail : run) {
+                    trails.append(trail.getName() + ", ");
+                }
+                JOptionPane.showMessageDialog(null, trails.toString());   
+            }
         }
     }
 
@@ -244,7 +275,7 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         switch (e.getActionCommand()) {
             case "load":
                 fileIndex = selectedIndex;
-                cards.add(trailPanel(false, -1), "trail");
+                cards.add(trailPanel(false, ""), "trail");
                 cl.show(cards, "trail");
                 selectedIndex = -1;
                 break;
@@ -276,7 +307,48 @@ public class ResortTracker implements ActionListener, ListSelectionListener {
         }
     }
 
+    public void WindowClosed() {
+
+    }
+
     public static void main(String[] args) {
         new ResortTracker();
+    }
+
+    @Override
+    public void windowClosing(WindowEvent a) {
+        for (model.Event e : EventLog.getInstance()) {
+            System.out.println(e.toString());
+        }
+    }
+
+    @Override
+    public void windowClosed(WindowEvent a) {
+    
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {
+        
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+
     }
 }

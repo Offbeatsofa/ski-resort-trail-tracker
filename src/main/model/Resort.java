@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
-import model.exceptions.BadFilterException;
 
 import java.util.ArrayList;
 
@@ -31,35 +30,41 @@ public class Resort {
         rnd.setSeed(rndSeed);
     }
 
+    public static enum Filter {
+        DIFFICULTY,
+        LOCATION,
+        FEATURES
+    }
+    
     //REQUIRES: filterType is one of "difficulty", "location", or "features"
     //EFFECTS: returns trails that have the same <filterType> as filterValue, or null if none
-    public List<Trail> getTrails(String filterType, String filterValue) throws BadFilterException {
+    public List<Trail> getTrails(Filter filterType, String filterValue) {
         List<Trail> returnList = new ArrayList<>();
-        if (filterType.equals("difficulty")) {
+        if (filterType.equals(Filter.DIFFICULTY)) {
             for (Trail t : trails) {
                 if (t.getDifficulty().equals(filterValue)) {
                     returnList.add(t);
                 }
             }
-        } else if (filterType.equals("location")) {
+        } else if (filterType.equals(Filter.LOCATION)) {
             for (Trail t : trails) {
                 if (t.getLocation().equals(filterValue)) {
                     returnList.add(t);
                 }
             }
-        } else if (filterType.equals("features")) {
+        } else {
             for (Trail t : trails) {
                 if (t.getFeatures().equals(filterValue)) {
                     returnList.add(t);
                 }
             }
-        } else {
-            throw new BadFilterException();
-        }
+        } 
+        EventLog.getInstance().logEvent(new Event("Filtered trails obtained"));
         return returnList.isEmpty() ? null : returnList;
     }
 
     public List<Trail> getTrails() {
+        EventLog.getInstance().logEvent(new Event("Trails obtained"));
         return trails; 
     }
     
@@ -78,6 +83,7 @@ public class Resort {
     public List<Trail> generateRun(Trail t) {
         List<Trail> run = new ArrayList<Trail>();
         run.add(t);
+        EventLog.getInstance().logEvent(new Event("Run generated"));
         if (t.getDownhillTrails().isEmpty()) {
             return run;
         } else {

@@ -4,7 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 
-import model.exceptions.BadFilterException;
+import model.Resort.Filter;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
@@ -41,16 +41,6 @@ public class ResortTest {
         assertEquals("rockies", testResort.getRegion());
         assertTrue(testResort.getTrails().isEmpty());
     }
-
-    @Test
-    public void testGetTrailsFilterBadFilter() {
-        try {
-            testResort.getTrails("error", null);
-            fail();
-        } catch (BadFilterException e) {
-            // pass
-        }
-    }
     
     @Test
     public void testGetTrailsFilterBoth() {
@@ -58,11 +48,7 @@ public class ResortTest {
         testList.add(testTrail2);
         testResort.addTrail(testTrail);
         testResort.addTrail(testTrail2);
-        try {
-            assertEquals(testList, testResort.getTrails("difficulty", "green"));
-        } catch (BadFilterException e) {
-            fail();
-        }
+        assertEquals(testList, testResort.getTrails(Filter.DIFFICULTY, "green"));
     }
 
     @Test
@@ -70,11 +56,7 @@ public class ResortTest {
         testList.add(testTrail);
         testResort.addTrail(testTrail);
         testResort.addTrail(testTrail2);
-        try {
-            assertEquals(testList, testResort.getTrails("location", "lodge"));
-        } catch (BadFilterException e) {
-            fail();
-        }
+        assertEquals(testList, testResort.getTrails(Filter.LOCATION, "lodge"));
     }
 
     @Test
@@ -82,22 +64,14 @@ public class ResortTest {
         testList.add(testTrail2);
         testResort.addTrail(testTrail);
         testResort.addTrail(testTrail2);
-        try {
-            assertEquals(testList, testResort.getTrails("features", "couloir"));
-        } catch (BadFilterException e) {
-            fail();
-        }
+        assertEquals(testList, testResort.getTrails(Filter.FEATURES, "couloir"));
     }
 
     @Test
     public void testGetTrailsFilterNone() {
         testResort.addTrail(testTrail);
         testResort.addTrail(testTrail2);
-        try {
-            assertNull(testResort.getTrails("difficulty", "black"));
-        } catch (BadFilterException e) {
-            fail();
-        }
+        assertNull(testResort.getTrails(Filter.DIFFICULTY, "black"));
     }
 
     @Test
