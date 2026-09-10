@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
@@ -23,33 +22,25 @@ import ca.ubc.cs.ExcludeFromJacocoGeneratedReport;
 // Code based on TellerApp lecture lab
 public class ResortAppConsole {
 
-    private List<Resort> resorts;
+    private Resort resort;
+    private Trail trail;
     private Scanner input;
-    private int resortIndex;
-    private int trailIndex;
     private static final String DATA_PATH = "./data/";
 
     
 
     // EFFECTS: runs the resort application
     public ResortAppConsole() {
-        resorts = new ArrayList<>();
-        resortIndex = 0;
-        trailIndex = 0;
         input = new Scanner(System.in);
         runApp();
     }
 
     // MODIFIES: this
-    // EFFECTS: processes user input
+    // EFFECTS: displays main menu, sends input given to processMainCommand unless exit
     private void runApp() {
-        String command = null;
-
         while (true) {
             displayMainMenu();
-            command = input.nextLine();
-            command = command.toLowerCase();
-
+            String command = input.nextLine().toLowerCase();
             if (command.equals("e")) {
                 break;
             } else {
@@ -59,20 +50,41 @@ public class ResortAppConsole {
         System.out.println("\nGoodbye!");
     }
 
+    // MODIFIES: resort
+    // EFFECTS: creates resort object based on user input
+    private Resort createResort() {
+        System.out.println("Resort name: ");
+        String name = input.nextLine();
+        System.out.println("Region: ");
+        String region = input.nextLine();
+        return new Resort(name, region);
+    }
+
     // MODIFIES: this
     // EFFECTS: processes user command in main menu
+    @SuppressWarnings("methodlength")
     private void processMainCommand(String command) {
-        if (command.equals("a")) {
-            doAddResort();
-        } else if (command.equals("s")) {
-            if (resorts.isEmpty()) {
-                System.out.println("No resorts to show!");
+        if (command.equals("r")) {
+            resort = createResort();
+        } else if (command.equals("t")) {
+            if (resort != null) {
+                while (true) {
+                    displayResortMenu();
+                    String nextCommand = input.nextLine().toLowerCase();
+                    if (nextCommand.equals("e")) {
+                        break;
+                    }
+                    processResortCommand(nextCommand);
+                }
             } else {
-                doSelectResort();
-                resortMenu();
+                System.out.println("Resort does not exist.");
             }
-        } else if (command.equals("f")) {
-            doSaveResort();
+        } else if (command.equals("s")) {
+            if (resort != null) {
+                doSaveResort();
+            } else {
+                System.out.println("No resort to save.");
+            }
         } else if (command.equals("l")) {
             doLoadResort();
         } else {
@@ -80,16 +92,25 @@ public class ResortAppConsole {
         }
     }
     
+    // REQUIRES: resort != null
     // MODIFIES: this
     // EFFECTS: processes user command in the resort menu
     private void processResortCommand(String command) {    
         if (command.equals("a")) {
-            doAddTrail(resorts.get(resortIndex));
+            doAddTrail();
         } else if (command.equals("s")) {
-            if (!resorts.get(resortIndex).getTrails().isEmpty()) {
-                doSelectTrail(resorts.get(resortIndex));
+            if (!resort.getTrails().isEmpty()) {
+                trail = doSelectTrail();
+                while (true) {
+                    displayTrailMenu();
+                    String nextCommand = input.nextLine().toLowerCase();
+                    if (nextCommand.equals("e")) {
+                        break;
+                    }
+                    processTrailCommand(nextCommand);
+                }
             } else { 
-                System.out.println("No trails to show!");
+                System.out.println("No trails to show.");
             }
         } else {
             System.out.println("Invalid resort command.");
@@ -99,16 +120,15 @@ public class ResortAppConsole {
     // MODIFIES: this
     // EFFECTS: processes user command in the trail menu
     private void processTrailCommand(String command) {
-        Trail t = resorts.get(resortIndex).getTrails().get(trailIndex);
         switch (command) {
             case "f" : 
-                System.out.println("Favorite set to " + String.valueOf(t.favorite()));
+                System.out.println("Favorite set to " + String.valueOf(trail.favorite()));
                 break;
             case "r" : 
-                System.out.println("Ridden set to " + String.valueOf(t.ride()));
+                System.out.println("Ridden set to " + String.valueOf(trail.ride()));
                 break;
             case "o" : 
-                System.out.println("Open set to " + String.valueOf(t.open()));
+                System.out.println("Open set to " + String.valueOf(trail.open()));
                 break;
             case "a" : 
                 doAddNote();
@@ -124,59 +144,49 @@ public class ResortAppConsole {
         }
     }
 
-    // MODIFIES: this, newResort
-    // EFFECTS: creates a new resort based on user inputs
-    private void doAddResort() {
-        System.out.println("Name: \n");
-        String name = input.nextLine();
-        System.out.println("Region: \n");
-        String region = input.nextLine();
-        resorts.add(new Resort(name, region));
-    }
+    // // REQUIRES: resorts is not empty
+    // // EFFECTS: selects an added resort
+    // private void doSelectResort() {
+    //     showResorts();
+    //     loopUntilCorrect:
+    //     while (true) {
+    //         System.out.println("Select resort: \n");
+    //         String index = input.nextLine();
+    //         for (int i = 0; i < resort.size(); i++) {
+    //             if (index.equals(String.valueOf(i + 1))) {
+    //                 resortIndex = i;
+    //                 break loopUntilCorrect;
+    //             }
+    //         }
+    //         System.out.println("Invalid resort selection");
+    //     }
+    // }
 
-    // REQUIRES: resorts is not empty
-    // EFFECTS: selects an added resort
-    private void doSelectResort() {
-        showResorts();
-        loopUntilCorrect:
-        while (true) {
-            System.out.println("Select resort: \n");
-            String index = input.nextLine();
-            for (int i = 0; i < resorts.size(); i++) {
-                if (index.equals(String.valueOf(i + 1))) {
-                    resortIndex = i;
-                    break loopUntilCorrect;
-                }
-            }
-            System.out.println("Invalid resort selection");
-        }
-    }
+    // // EFFECTS: displays resort menu and processes user command  
+    // private void resortMenu() {
+    //     while (true) {
+    //         displayResortMenu();
+    //         String command = input.nextLine();
+    //         command = command.toLowerCase();
+    //         if (command.equals("e")) {
+    //             //runApp();
+    //             break;
+    //         } else {
+    //             processResortCommand(command);
+    //         }
+    //     }
+    // }
 
-    // EFFECTS: displays resort menu and processes user command  
-    private void resortMenu() {
-        while (true) {
-            displayResortMenu();
-            String command = input.nextLine();
-            command = command.toLowerCase();
-            if (command.equals("e")) {
-                //runApp();
-                break;
-            } else {
-                processResortCommand(command);
-            }
-        }
-    }
-
-    // EFFECTS: prints out resorts to console
-    private void showResorts() {
-        for (Resort r : resorts) {
-            System.out.println("Resort " + String.valueOf(resorts.indexOf(r) + 1) + ": " + r.getName());
-        }
-    }
+    // // EFFECTS: prints out resorts to console
+    // private void showResorts() {
+    //     for (Resort r : resort) {
+    //         System.out.println("Resort " + String.valueOf(resort.indexOf(r) + 1) + ": " + r.getName());
+    //     }
+    // }
 
     //MODIFIES: this, newTrail
     //EFFECTS: creates a new trail based on user inputs
-    private void doAddTrail(Resort r) {
+    private void doAddTrail() {
         System.out.println("Name: \n");
         String name = input.nextLine();
         System.out.println("Difficulty: \n");
@@ -185,43 +195,39 @@ public class ResortAppConsole {
         String location = input.nextLine();
         System.out.println("Features: \n");
         String features = input.nextLine();
-        r.addTrail(new Trail(name, difficulty, location, features));
+        resort.addTrail(new Trail(name, difficulty, location, features));
     }
 
     //REQUIRES: resort's trails are not empty
     //EFFECTS: selects an added trail
-    private void doSelectTrail(Resort r) {
-        showTrails(r);
-        loopUntilCorrect:
+    private Trail doSelectTrail() {
+        showTrails(resort);
         while (true) {
             System.out.println("Select trail: \n");
             String index = input.nextLine();
-            for (int i = 0; i < r.getTrails().size(); i++) {
+            for (int i = 0; i < resort.getTrails().size(); i++) {
                 if (index.equals(String.valueOf(i + 1))) {
-                    trailIndex = i;
-                    break loopUntilCorrect;
+                    return resort.getTrails().get(i);
                 }
-                
             }
             System.out.println("Invalid trail selection.");            
         }
-        trailMenu();
     }
     
-    // EFFECTS: displays resort menu and processes user command
-    private void trailMenu() {
-        while (true) {
-            displayTrailMenu();
-            System.out.println();
-            String command = input.nextLine();
-            command = command.toLowerCase();
-            if (command.equals("e")) {
-                break;
-            } else {
-                processTrailCommand(command);
-            }
-        }
-    }
+    // // EFFECTS: displays trail menu and processes user command
+    // private void trailMenu() {
+    //     while (true) {
+    //         displayTrailMenu();
+    //         System.out.println();
+    //         String command = input.nextLine();
+    //         command = command.toLowerCase();
+    //         if (command.equals("e")) {
+    //             break;
+    //         } else {
+    //             processTrailCommand(command);
+    //         }
+    //     }
+    // }
 
     // EFFECTS: prints out a resort's trails to console
     private void showTrails(Resort r) {
@@ -234,20 +240,19 @@ public class ResortAppConsole {
     //EFFECTS: adds user input as note to t
     private void doAddNote() {
         System.out.println("Note: \n");
-        resorts.get(resortIndex).getTrails().get(trailIndex).addNote(input.nextLine());
+        trail.addNote(input.nextLine());
     }
 
     //MODIFIES: t
     //EFFECTS: uses user input to modify the notes of t
     private void doEditNotes() {
-        Trail t = resorts.get(resortIndex).getTrails().get(trailIndex);
-        for (String n : t.getNotes()) {
-            System.out.println("Note " + String.valueOf(t.getNotes().indexOf(n) + 1) + ": " + n);
+        for (String n : trail.getNotes()) {
+            System.out.println("Note " + String.valueOf(trail.getNotes().indexOf(n) + 1) + ": " + n);
             System.out.println("Edit note? y/n");
             if (input.nextLine().equals("y")) {
                 System.out.println("New note: ");
                 String newNote = input.nextLine();
-                t.editNote(t.getNotes().indexOf(n), newNote);
+                trail.editNote(trail.getNotes().indexOf(n), newNote);
                 break;
             }
         }
@@ -256,16 +261,15 @@ public class ResortAppConsole {
     // MODIFIES: trail at current trailIndex
     // EFFECTS: uses user input to add one trail to another
     private void doDownhillTrail() {
-        Trail initTrail = resorts.get(resortIndex).getTrails().get(trailIndex);
         System.out.println("Which trail would you like to add?");
-        showTrails(resorts.get(resortIndex));
+        showTrails(resort);
         System.out.println("Trail #: ");
         String index = input.next();
-        for (int i = 0; i < resorts.get(resortIndex).getTrails().size(); i++) {
+        input.nextLine();
+        for (int i = 0; i < resort.getTrails().size(); i++) {
             if (index.equals(String.valueOf(i + 1))) {
                 try {
-                    initTrail.addDownhillTrail(resorts.get(resortIndex).getTrails().get(i));
-                    System.out.println("Trail add successful.");
+                    trail.addDownhillTrail(resort.getTrails().get(i));
                 } catch (Exception e) {
                     System.out.println("Trail add failed.");
                 }
@@ -275,24 +279,23 @@ public class ResortAppConsole {
         System.out.println("Invalid trail number.");
     }
 
+    // REQUIRES: resort != null
     // EFFECTS: saves user selected resort to file
     private void doSaveResort() {
-        System.out.println("Which resort would you like to save?");
-        doSelectResort();
-        Resort r = resorts.get(resortIndex);
-        String path = (DATA_PATH + r.getName().replaceAll("\\s+", "") + ".json");
+        String path = (DATA_PATH + resort.getName().replaceAll("\\s+", "") + ".json");
         JsonWriter writer = new JsonWriter(path);
         try {
             writer.open();
-            writer.write(r);
+            writer.write(resort);
             writer.close();
-            System.out.println("Saved " + r.getName() + " to " + path);
+            System.out.println("Saved " + resort.getName() + " to " + path);
         } catch (FileNotFoundException e) {
             System.out.println("Unable to write to file " + path);
         }
     }
 
     // EFFECTS: loads user selected resort from file
+    @SuppressWarnings("methodlength")
     private void doLoadResort() {
         try {
             try (Stream<Path> entries = Files.list(Paths.get(DATA_PATH))) {
@@ -304,10 +307,11 @@ public class ResortAppConsole {
                     loopUntilCorrect: while (true) {
                         displayFiles();              
                         String index = input.next();
+                        input.nextLine();
                         for (int i = 0; i < pathList.size(); i++) {
                             if (index.equals(String.valueOf(i + 1))) {
                                 JsonReader reader = new JsonReader(pathList.get(i).toString());
-                                resorts.add(reader.read());
+                                resort = reader.read();
                                 break loopUntilCorrect;
                             }
                         }
@@ -332,11 +336,11 @@ public class ResortAppConsole {
     // EFFECTS: displays options: add new resort, select/show resorts, or exit
     private void displayMainMenu() {
         System.out.println();
-        System.out.println("a - add new resort");
-        System.out.println("s - select a resort to edit");
-        System.out.println("f - save resort to file");
-        System.out.println("l - load resort from file");
-        System.out.println("e - exit application");
+        System.out.println("r - Create new resort");
+        System.out.println("t - Edit current resort");
+        System.out.println("s - Save to file");
+        System.out.println("l - Load from file");
+        System.out.println("e - Exit application");
     }
 
     // EFFECTS: displays options: add trail, select/show trails, or go back
@@ -350,7 +354,7 @@ public class ResortAppConsole {
     // EFFECTS: displays options to modify a trail
     private void displayTrailMenu() {
         System.out.println();
-        System.out.println(resorts.get(resortIndex).getTrails().get(trailIndex).getName());
+        System.out.println(trail.getName());
         System.out.println("f - favorite/unfavorite trail");
         System.out.println("r - ride/unride trail");
         System.out.println("o - open/close trail");
